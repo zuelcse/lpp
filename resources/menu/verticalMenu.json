@@ -1,0 +1,240 @@
+{
+  "menu": [
+    {
+      "url": "/",
+      "permission":"dashboard",
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons bx bx-home-circle",
+      "slug": "dashboard-analytics"
+    },
+    {
+      "url": "/report",
+      "permission":"report",
+      "name": "Report",
+      "icon": "menu-icon tf-icons bx bx-detail",
+      "slug": "report"
+    },
+    {
+      "name": "Purchase",
+      "permission":"purchase",
+      "icon": "menu-icon tf-icons bx bx-collection",
+      "slug": ["purchase-new","purchase-new-desktop","purchase-return","purchase-list"], 
+      "submenu": [
+        {
+          "url": "/purchase/new-desktop",
+          "permission":"basic",
+          "name": "New Purchase Desktop",
+          "slug": "purchase-new-desktop"
+        },
+        {
+          "url": "/purchase/new",
+          "permission":"mobile_entry",
+          "name": "New Purchase",
+          "slug": "purchase-new"
+        },
+        {
+          "url": "purchase/list",
+          "permission":"basic",
+          "name": "Purchase List",
+          "slug": "purchase-list"
+        }
+      ]
+    },
+    {
+      "name": "Memo",
+      "permission":"sales",
+      "icon": "menu-icon tf-icons bx bx-collection",
+      "slug": ["sales-new","sales-return","sales-list","sales-update","sales-invoice-pp"], 
+      "submenu": [
+        {
+          "url": "/sales/invoice-pp",
+          "permission":"basic",
+          "name": "New Invoice (PP)",
+          "slug": "sales-invoice-pp"
+        },
+        {
+          "url": "/sales/new",
+          "permission":"mobile_entry",
+          "name": "New Invoice",
+          "slug": "sales-new"
+        },
+        {
+          "url": "sales/list",
+          "permission":"basic",
+          "name": "Invoice List",
+          "slug": "sales-list"
+        }
+      ]
+    },
+    {
+      "name": "Voucher",
+      "permission":"voucher",
+      "icon": "menu-icon tf-icons bx bx-detail",
+      "slug": "voucher", 
+      "submenu": [
+        {
+          "name": "Receive",
+          "permission":"basic",
+          "slug": ["voucher-receive-cash","voucher-receive-bank"],
+          "submenu": [
+            {
+              "name": "Cash",
+              "url": "/voucher/receive-cash",
+              "permission":"basic",
+              "slug": "voucher-receive-cash"
+            },
+            {
+              "name": "Bank",
+              "url": "/voucher/receive-bank",
+              "permission":"basic",
+              "slug": "voucher-receive-bank"
+            }
+          ]
+        },
+        {
+          "name": "Payment",
+          "permission":"basic",
+          "slug": ["voucher-payment-cash","voucher-payment-bank","voucher-adjustment-update"],
+          "submenu": [
+            {
+              "url": "voucher/payment-cash",
+              "permission":"basic",
+              "name": "Cash",
+              "slug": "voucher-payment-cash"
+            },
+            {
+              "url": "voucher/payment-bank",
+              "permission":"basic",
+              "name": "Bank",
+              "slug": "voucher-payment-bank"
+            }
+          ]
+        },
+        {
+          "name": "Adjustment",
+          "url": "voucher/adjustment",
+          "permission":"basic",
+          "slug": "voucher-adjustment"
+        },
+        {
+          "name": "List",
+          "url": "voucher/list",
+          "permission":"basic",
+          "slug": "voucher-list"
+        }
+      ]
+    },
+    {
+      "name": "Setting",
+      "permission":"setting",
+      "icon": "menu-icon tf-icons bx bx-cog me-2",
+      "slug": ["setting-group","setting-subgroup","setting-ledger","ledger-create","setting-item","stockitem-create","setting-voucher-type","setting-work-type","setting-work-name","setting-master-size","setting-master-color","setting-master-weight","setting-master-paper","setting-master-lamination"],
+      "submenu": [
+        {
+          "url": "setting/group",
+          "permission":"setting",
+          "name": "Group",
+          "slug": "setting-group"
+        },
+        {
+          "url": "setting/subgroup",
+          "permission":"setting",
+          "name": "Sub Group",
+          "slug": "setting-subgroup"
+        },
+        {
+          "url": "/setting/ledger",
+          "permission":"setting",
+          "name": "Ledger/Account Head",
+          "slug": "setting-ledger"
+        },
+        {
+          "url": "setting/item",
+          "permission":"setting",
+          "name": "Items",
+          "slug": "setting-item"
+        },
+        {
+          "url": "/setting/voucher-type",
+          "permission":"basic",
+          "name": "Voucher Type",
+          "slug": "setting-voucher-type"
+        },
+        {
+          "url": "/setting/work-name",
+          "permission":"basic",
+          "name": "Work Name",
+          "slug": "setting-work-name"
+        },
+        {
+          "url": "/setting/work-types",
+          "permission":"basic",
+          "name": "Work Type",
+          "slug": "setting-work-types"
+        },
+        {
+          "url": "/setting/master_size",
+          "permission":"basic",
+          "name": "Size",
+          "slug": "setting-master-size"
+        },
+        {
+          "url": "/setting/master_color",
+          "permission":"basic",
+          "name": "Color",
+          "slug": "setting-master-color"
+        },
+        {
+          "url": "/setting/master_weight",
+          "permission":"basic",
+          "name": "Weight",
+          "slug": "setting-master-weight"
+        },
+        {
+          "url": "/setting/master_paper",
+          "permission":"basic",
+          "name": "Paper",
+          "slug": "setting-master-paper"
+        },
+        {
+          "url": "/setting/master_lamination",
+          "permission":"basic",
+          "name": "Lamination",
+          "slug": "setting-master-lamination"
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "permission":"user_management",
+      "icon": "menu-icon tf-icons bx bx-user me-2",
+      "slug": "acl",
+      "submenu": [
+        {
+          "url": "acl/user/create",
+          "permission":"add_user",
+          "name": "User Create",
+          "slug": "acl-auth-register-basic"
+        },
+        {
+          "url": "acl/user/list",
+          "permission":"all_user",
+          "name": "User List",
+          "slug": "acl-userList"
+        },
+        {
+          "url": "acl/user/roles",
+          "permission":"all_roles",
+          "name": "Role Management",
+          "slug": "acl-manageUserRole"
+        },
+        {
+          "url": "acl/user/permissions",
+          "permission":"all_permissions",
+          "name": "Permission",
+          "slug": "acl-manageUserPermissions"
+        }
+      ]
+    }
+  ]
+}

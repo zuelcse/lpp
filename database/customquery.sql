@@ -1,0 +1,6 @@
+ALTER TABLE `units` CHANGE `isSimpleUnit` `isSimpleUnit` TINYINT(1) NOT NULL DEFAULT '0', CHANGE `alterId` `alterId` INT NOT NULL DEFAULT '0';
+ALTER TABLE `stock_items` CHANGE `parent` `parent` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `costingMethod` `costingMethod` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `valuationMethod` `valuationMethod` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `additionalUnits` `additionalUnits` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `conversion` `conversion` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL, CHANGE `openingBalance` `openingBalance` DOUBLE(8,2) NOT NULL DEFAULT '0.00', CHANGE `openingValue` `openingValue` DOUBLE(8,2) NOT NULL DEFAULT '0.00', CHANGE `openingRate` `openingRate` DOUBLE(8,2) NOT NULL DEFAULT '0.00';
+
+-- 20240624
+ALTER TABLE `mst_vouchertype` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
+ALTER TABLE `mst_ledger` ADD `id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);

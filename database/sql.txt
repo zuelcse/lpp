@@ -1,0 +1,2 @@
+//Tally synch table
+TRUNCATE `all_voucher_list`; TRUNCATE `mst_cost_centre`; TRUNCATE `mst_cost_centre_tally`; TRUNCATE `mst_ledger`; TRUNCATE `mst_ledger_tally`; TRUNCATE `mst_stock_item`; TRUNCATE `mst_units`; TRUNCATE `stock_items`; TRUNCATE `units`;

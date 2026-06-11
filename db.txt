@@ -1,0 +1,8 @@
+--240710
+ALTER TABLE `receipt_voucher` CHANGE `status` `is_tally_synced` TINYINT NOT NULL DEFAULT '0' COMMENT '1:Tally Updated';
+
+ALTER TABLE `sales_order` CHANGE `update_status` `is_tally_synced` TINYINT NOT NULL DEFAULT '0' COMMENT '0:int, 1:updateTally, 2:failed';
+
+ALTER TABLE `voucher_types` ADD `voucher_prefix` VARCHAR(20) NOT NULL AFTER `voucher_type`, ADD `start_number` INT NOT NULL AFTER `voucher_prefix`;
+
+ALTER TABLE `voucher_types` ADD `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `status`, ADD `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_at`;
