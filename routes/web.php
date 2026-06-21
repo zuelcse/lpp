@@ -250,7 +250,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/status/{id}',[SalesController::class,'changeStatus'])->name('sales-status-changes');
         Route::post('/voucher-create',[SalesController::class,'newStore'])->name('sales.voucher.create');
         Route::post('/voucher-create-pp',[SalesController::class,'newStorePp'])->name('sales-invoice-create');
-        Route::get('/details-pp/{id}',[SalesController::class,'detailsPp'])->name('sales-details-pp');
+        Route::get('/details-pp/{id}',[SalesController::class,'detailsPp'])->name('sales-details-pp');//?ln=bn
         Route::get('/removeSalesItems/{id}',[SalesController::class,'removeSalesItems'])->name('sales-removeSalesItems');
     });
     

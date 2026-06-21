@@ -6,3 +6,6 @@ ALTER TABLE `sales_order` CHANGE `update_status` `is_tally_synced` TINYINT NOT N
 ALTER TABLE `voucher_types` ADD `voucher_prefix` VARCHAR(20) NOT NULL AFTER `voucher_type`, ADD `start_number` INT NOT NULL AFTER `voucher_prefix`;
 
 ALTER TABLE `voucher_types` ADD `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `status`, ADD `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `created_at`;
+
+-- 260614
+ALTER TABLE `sales` ADD `previous_balance` DECIMAL(11,2) NOT NULL DEFAULT '0.00' AFTER `paid_amount`;

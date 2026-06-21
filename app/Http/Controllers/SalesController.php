@@ -17,6 +17,7 @@ use App\Models\StockItem;
 use App\Models\StockItemPermission;
 use App\Models\Voucher;
 use App\Models\WorkType;
+use App\Models\WorkName;
 use Auth;
 
 class SalesController extends Controller
@@ -99,6 +100,9 @@ class SalesController extends Controller
 
         $homeCon = new HomeController;
         $voucher_no = $homeCon->voucherNoForUse($myRequest);
+        $previous_balance = Ledger::select('closing_balance')->where('id',$request->ledger)
+                            ->first()->closing_balance;
+        // dd($previous_balance);
         $extra_discount = $request->extra_discount==''?0:$request->extra_discount;
         $sales=Sales::create([
             "voucher_no" => $voucher_no,
@@ -106,11 +110,11 @@ class SalesController extends Controller
             "debit_head" => $request->ledger,
             "discount_amount" => $extra_discount,
             "paid_amount" => $request->paid_amount??0,
+            "previous_balance" => $request->previous_balance??0,
             "narration" => $request->narration_remarks,
             "user_id" => Auth::user()->id,
             "date" => $request->date
         ]);
-
         $total_amount = 0;
 
         foreach ($request->item as $key => $item) {
@@ -298,11 +302,6 @@ class SalesController extends Controller
         if ($request->isMethod('post')){
             $vCon = new VoucherController;
 
-            $data = Sales::with('Voucher.MasterVoucher')
-                ->where('id',$id)
-                ->get()
-                ->toArray()
-                ;
             // dd($data[0]['voucher']['master_voucher']);
             foreach ($data[0]['voucher']['master_voucher'] as $k => $v){
                 // Balance (Amount) Retrun to Heads
@@ -310,7 +309,6 @@ class SalesController extends Controller
                 $vCon->closingBalanceUpdate($v['credit_head'], $v['amount'], '+');
             }
             // dd($data);
-            $voucher_no=$data[0]['voucher_no'];
 
             $total_amount = 0;
             $items=[];
@@ -427,12 +425,19 @@ class SalesController extends Controller
             // return redirect('sales/details/'.$id)->with($msgtype,$msg);
             return redirect('sales/details/'.$id);
         }
+        $data = $this->salesDetails($request->id);
+
+        $WorkTypes = WorkType::orderBy('name','ASC')->get()->toArray();
+        $work_names = WorkName::selectRaw("id, name")->where('debit_head',$data[0]['debit_head'])
+                  ->orderBy('name','ASC')->pluck('name','id');
 
         $ledgers = Ledger::get();
         $stockItem = StockItem::get();
-        $data = $this->salesDetails($request->id);
+
+        $voucherType = $this->voucherType;
         // dd($data);
-        return view('application.sales.edit',compact('data','ledgers','stockItem'));
+        // return view('application.sales.edit',compact('data','ledgers','stockItem'));
+        return view('application.sales.edit-desktop',compact('data','ledgers','stockItem','voucherType','WorkTypes','work_names'));
     }
 
     public function removeMasterItems(Request $request){
@@ -769,7 +774,7 @@ class SalesController extends Controller
 
     public function salesDetails($id){
         //  new 
-        $data = Sales::with('Ledger','MasterItems.StockItem')
+        $data = Sales::with('Ledger','MasterItems')
             ->where('id',$id)
             ->get()
             ->map(function($sales) {
@@ -790,14 +795,16 @@ class SalesController extends Controller
                     $sales->MasterItems->map(function($item) {
                         return [
                             'id' => $item->id,
-                            'item_id' => $item->StockItem->id,
-                            'name' => $item->StockItem->name,
+                            // 'item_id' => $item->StockItem->id,
+                            // 'name' => $item->StockItem->name,
                             'sales_quantity' => $item->sales_quantity,
                             'rate' => $item->rate,
                             'amount' => $item->amount,
                             'discount_percent' => $item->discount_percent,
                             'discount_amount' => $item->discount_amount,
-                            'net_amount' => $item->net_amount
+                            'net_amount' => $item->net_amount,
+                            'work_name_id' => $item->work_name_id,
+                            'work_type_id' => $item->work_type_id,
                         ];
                     }) : null
                 ];
@@ -922,6 +929,7 @@ class SalesController extends Controller
     
     public function detailsPp(Request $request){
         if(empty($request->id)){exit('ID is Null!');}
+        // dd($request->ln);
         //  new 
         $data = Sales::with([
                 'Ledger',
@@ -967,6 +975,9 @@ class SalesController extends Controller
             
             // dd($data);
         // end
+        if($request->ln == 'bn')
+        return view('application.sales.details-pp-bn', compact('data'));
+
         return view('application.sales.details-pp', compact('data'));
     }
     

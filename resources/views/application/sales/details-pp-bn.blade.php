@@ -3,7 +3,7 @@
 @section('title', 'Memo Details')
 
 @section('content')
-
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
@@ -16,10 +16,17 @@
 
                 <div class="card-body" id="printArea">
                     <style>
+                        @font-face {
+                            font-family: 'nikosh';
+                            src: url('/resources/assets/fonts/NikoshBAN.ttf') format('truetype');
+                        }
                         body {
-                            font-family: "Times New Roman", Times, serif;
+                            /* font-family: Arial, sans-serif;*/
+                            font-family: 'nikosh';
                             background: #f5f5f5;
                         }
+
+
 
                         .invoice-box {
                             width: 900px;
@@ -131,48 +138,48 @@
 
                     <div class="invoice-box">
 
-                        <h2>Cash Memo</h2>
+                        <h2>ক্যাশ মেমো</h2>
 
                         <div class="top-section">
 
                             <div class="box left-box">
-                                <div class="box-title">Name & Address</div>
-                                <div class="dashed"><strong>{{ $data['ledger']['name'] }}</strong></div>
-                                <div class="dashed">{{ $data['ledger']['address'] }}</div>
+                                <div class="box-title">নাম ও ঠিকানা</div>
+                                <div class="dashed"><strong>{{ $data['ledger']['name_bn'] }}</strong></div>
+                                <div class="dashed">{{ $data['ledger']['address_bn'] }}</div>
                             </div>
 
                             <div class="box right-box">
-                                <div><strong>Bill No:</strong> {{ $data['voucher_no'] }}</div>
-                                <div><strong>Date:</strong> {{ $data['date'] }}</div>
-                                <div><strong>Cell:</strong> {{ $data['ledger']['mobile'] }}</div>
+                                <div style="font-family: nikosh;"><strong>বিল নং:</strong> {{ $data['voucher_no'] }}</div>
+                                <div style="font-family: nikosh;"><strong>তারিখ:</strong> {{ numberToBangla($data['date']) }}</div>
+                                <div><strong>মোবাইল:</strong> {{ numberToBangla($data['ledger']['mobile']) }}</div>
                             </div>
 
                         </div>
 
                         <table>
                             <tr>
-                                <th>S.No</th>
-                                <th>Quantity</th>
-                                <th>Description</th>
-                                <th>Rate</th>
-                                <th>Taka</th>
+                                <th>ক্রম নং</th>
+                                <th>পরিমাণ</th>
+                                <th>পণ্যের বিবরণ</th>
+                                <th>দর</th>
+                                <th>টাকা</th>
                             </tr>
                             <?php foreach ($data['master_items'] as $key => $value): ?>
                                <tr>
-                                    <td>{{ $key+1 }}</td>
-                                    <td>{{ $value['sales_quantity'] }}</td>
+                                    <td>{{ numberToBangla($key+1) }}</td>
+                                    <td>{{ numberToBangla($value['sales_quantity']) }}</td>
                                     <td>
-                                        {{ $value['work_name']['name']??'' }}
-                                        {{ $value['work_type']['name']??'' }}
-                                        {{ $value['size']['name']??'' }}
-                                        {{ $value['color']['name']??'' }}
-                                        {{ $value['paper']['name']??'' }}
-                                        {{ $value['weight']['name']??'' }}
-                                        {{ $value['lamination']['name']??'' }}
+                                        {{ $value['work_name']['name_bn']??'' }}
+                                        {{ $value['work_type']['name_bn']??'' }}
+                                        {{ $value['size']['name_bn']??'' }}
+                                        {{ $value['color']['name_bn']??'' }}
+                                        {{ $value['paper']['name_bn']??'' }}
+                                        {{ $value['weight']['name_bn']??'' }}
+                                        {{ $value['lamination']['name_bn']??'' }}
                                         {{ $value['note'] }}
                                     </td>
-                                    <td>{{ $value['rate'] }}</td>
-                                    <td class="text-right">{{ $value['amount'] }}</td>
+                                    <td>{{ numberToBangla($value['rate']) }}</td>
+                                    <td class="text-right">{{ numberToBangla($value['amount']) }}</td>
                                 </tr>
                             <?php endforeach; ?>
                             <!-- Add more rows dynamically -->
@@ -180,25 +187,32 @@
                         </table>
 
                         <div class="bottom-section">
-                            <?php $currentBalance = ($data['previous_balance']-$data['gross_amount'])+$data['paid_amount']; ?>
+                            <?php $currentBalance = ($data['previous_balance']-$data['gross_amount'])+$data['paid_amount']; 
+                            $sign = '+';
+                            if($currentBalance < 0){
+                                $currentBalance = abs($currentBalance);
+                                $sign = '-';
+                            }
+                            // exit($currentBalance);
+                            ?>
                             <div class="box word-box">
-                                <strong>In Word:</strong><br>
-                                PAYMENT: {{ numberToWords($data['paid_amount']) }} Only.<br>
-                                CURRENT BALANCE: {{ numberToWords($currentBalance) }} Only.
+                                <strong>কথায়:</strong><br>
+                                প্রদত্ত অর্থ: {{ numberToBanglaWords( (int) $data['paid_amount']) }} মাত্র।<br>
+                                বর্তমান ব্যালেন্স: {{ numberToBanglaWords($currentBalance) }} মাত্র।
                             </div>
 
                             <div class="box summary-box">
-                                <div><span>Total:</span><span>{{ $data['gross_amount'] }}</span></div>
-                                <div><span>Previous Balance:</span><span>{{ $data['previous_balance'] }}</span></div>
-                                <div><span>Payment:</span><span>{{ $data['paid_amount'] }}</span></div>
-                                <div><span>Current Balance:</span><span>{{ number_format($currentBalance, 2) }}</span></div>
+                                <div><span>মোট:</span><span>{{ numberToBangla($data['gross_amount']) }}</span></div>
+                                <div><span>পূর্ববর্তী ব্যালেন্স:</span><span>{{ numberToBangla($data['previous_balance']) }}</span></div>
+                                <div><span>প্রদত্ত অর্থ:</span><span>{{ numberToBangla($data['paid_amount']) }}</span></div>
+                                <div><span>বর্তমান ব্যালেন্স:</span><span>{{ numberToBangla(number_format($currentBalance, 2)) }}</span></div>
                             </div>
 
                         </div>
 
                         <div class="footer">
-                            <div>Signature of buyer</div>
-                            <div>For: Locknath Printing Press</div>
+                            <div>ক্রেতার স্বাক্ষর</div>
+                            <div>পক্ষে: লোকনাথ প্রিন্টিং প্রেস</div>
                         </div>
 
                     </div>

@@ -61,6 +61,7 @@ class Sales extends Model
         "discount_amount",
         "gross_amount",
         "paid_amount",
+        "previous_balance",
         "narration",
         "user_id",
         "date"

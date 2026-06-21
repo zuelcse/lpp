@@ -95,7 +95,8 @@
                                                                 <li><a class="dropdown-item" href="{{url('/sales/status/'.$item->id)}}">Approve</a></li>
                                                             @endif
                                                         @endCan -->
-                                                        <li><a class="dropdown-item" href="{{url('/sales/details-pp/'.$item->id)}}">Details</a></li>
+                                                        <li><a target="_blank" class="dropdown-item" href="{{url('/sales/details-pp/'.$item->id)}}">Details</a></li>
+                                                        <li><a target="_blank" class="dropdown-item" href="{{url('/sales/details-pp/'.$item->id.'?ln=bn')}}">Details Bn</a></li>
                                                         @can('sales_order_delete')
                                                             @if($item->is_tally_synced != 2)
                                                                 <li>
