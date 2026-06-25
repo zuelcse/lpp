@@ -15,7 +15,26 @@ class WorkTypeController extends Controller
         // $workTypes = WorkType::with('sizes','colors','weights','papers','laminations')->get()->toArray();
         $data = WorkType::with('sizes','colors','weights','papers','laminations')->orderBy('name','ASC')->paginate(10);
         // dd($data);
-        return view('application.setting.workTypesList', compact('data'));
+        return view('application.setting.worktype.lists', compact('data'));
+    }
+
+    public function workTypeCreate(Request $request){
+        dd($request->all());
+        $request->validate(
+            [
+                'name' => 'required|unique:work_types',
+                'name_bn' => 'required|string|max:255',
+            ],
+            [
+                'name.required' => 'Group is required',
+                'name_bn.required' => 'Name is required',
+            ]
+        );
+        WorkType::create($request->all());
+
+        return redirect()
+        ->back()
+        ->with('success', 'Your message has been sent!');
     }
 
     public function workTypesEdit(Request $request)
@@ -26,7 +45,7 @@ class WorkTypeController extends Controller
                 ->orderBy('name','ASC')->first();
         // dd($data);
 
-        return view('application.setting.workTypesEdit', [
+        return view('application.setting.worktype.edit', [
             'data'     => $data,
             'sizes'  => MasterSize::all(),
             'colors' => MasterColor::all(),
@@ -34,7 +53,7 @@ class WorkTypeController extends Controller
             'papers' => MasterPaper::all(),
             'laminations' => MasterLamination::all()
         ]);
-        return view('application.setting.workTypesEdit', compact('data'));
+        // return view('application.setting.worktype.edit', compact('data'));
     }
 
     public function create()

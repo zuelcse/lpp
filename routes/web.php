@@ -186,7 +186,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 
         // Route::get('/work-type',[SettingController::class,'workType'])->name('setting-work-type');
-        Route::get('/work-type/create',[SettingController::class,'workTypeCreate'])->name('setting-work-type-create');
+        Route::post('/work-type/create',[WorkTypeController::class,'workTypeCreate'])->name('setting-work-type-create');
         Route::get('/work-types',[WorkTypeController::class,'workTypes'])->name('setting-work-types');
         Route::get('/work-types/edit',[WorkTypeController::class,'workTypesEdit'])->name('setting-work-types-edit');
         Route::post('/work-types/update',[WorkTypeController::class,'workTypeUpdate'])->name('setting-work-types-update');

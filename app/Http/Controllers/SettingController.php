@@ -197,14 +197,14 @@ class SettingController extends Controller
     public function workName(){
         $data = WorkName::with('Ledger')->orderBy('name','ASC')->paginate(50);
         // dd($data);
-        return view('application.setting.workNameList', compact('data'));
+        return view('application.setting.workname.list', compact('data'));
     }
 
     public function workNameCreate(){
         // $unit = new Ledger();
         $ledgers = Ledger::orderBy('name',"ASC")->get()->pluck('name','id');
         // $allGroup = $unit->getAll();
-        return view('application.setting.workNameCreate', compact('ledgers'));
+        return view('application.setting.workname.create', compact('ledgers'));
     }
 
     public function workNameCreateAction(Request $request){
@@ -230,7 +230,8 @@ class SettingController extends Controller
     public function workNameUpdate(Request $request, $id=null){
         if ($request->isMethod('post')){
             // dd($request->all());
-            $result=Subgroups::where('id',$id)->where('is_editable','!=', 0)->update($request->only(['main_group_id','name','is_active']));
+            $result=WorkName::where('id',$id)
+              ->update($request->except(['_token']));
 
             if($result){
                 $msgtype='success';
@@ -240,17 +241,15 @@ class SettingController extends Controller
                 $msg='Update unsuccessfully.';
             }
 
-            return redirect('setting/subgroup')->with($msgtype,$msg);
+            return redirect('setting/work-name')->with($msgtype,$msg);
         }
-        $unit = new Group();
-        $allGroup = $unit->getAll();
 
-        $subgroup = Subgroups::where('id',$request->id)->first();
-        if($subgroup->is_editable === 0){
-            exit('This "'.$subgroup->name.'" subgroup is not editable!');
-        }
-        // dd($subgroup);  
-        return view('application.setting.subGroupUpdate', compact('allGroup','subgroup'));
+        $ledgers = Ledger::orderBy('name',"ASC")->get()->pluck('name','id');
+
+        $data = WorkName::where('id',$request->id)->first();
+
+        // dd($data);  
+        return view('application.setting.workname.update', compact('ledgers','data'));
     }
 
     public function workNameUpdateAction(Request $request){
@@ -283,65 +282,6 @@ class SettingController extends Controller
     }
     // work-name--/--
 
-
-    // work-type
-
-    public function workType(){
-        $data = WorkType::orderBy('name','ASC')->paginate(50);
-        // dd($data);
-        return view('application.setting.workTypeList', compact('data'));
-    }
-
-    public function workTypeCreate(Request $request){
-        // dd($request->all());
-        $request->validate(
-            [
-                'name' => 'required|unique:work_types',
-                'name_bn' => 'required|string|max:255',
-            ],
-            [
-                'name.required' => 'Group is required',
-                'name_bn.required' => 'Name is required',
-            ]
-        );
-        WorkType::create($request->all());
-
-        return redirect()
-        ->back()
-        ->with('success', 'Your message has been sent!');
-
-
-        // $unit = new Ledger();
-        $ledgers = Ledger::orderBy('name',"ASC")->get()->pluck('name','id');
-        // $allGroup = $unit->getAll();
-        return view('application.setting.workTypeCreate', compact('ledgers'));
-    }
-
-    public function workTypeVariations(Request $request){
-        // dd($request->all());
-        $request->validate(
-            [
-                'name' => 'required|unique:work_types',
-                'name_bn' => 'required|string|max:255',
-            ],
-            [
-                'name.required' => 'Group is required',
-                'name_bn.required' => 'Name is required',
-            ]
-        );
-        WorkType::create($request->all());
-
-        return redirect()
-        ->back()
-        ->with('success', 'Your message has been sent!');
-
-
-        // $unit = new Ledger();
-        $ledgers = Ledger::orderBy('name',"ASC")->get()->pluck('name','id');
-        // $allGroup = $unit->getAll();
-        return view('application.setting.workTypeCreate', compact('ledgers'));
-    }
-    // work-name--/--
     // /master_size
 
     public function masterSize(){

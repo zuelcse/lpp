@@ -40,7 +40,7 @@
                                             <td>{{ $item->name }}</td>
                                             <td>{{ $item->name_bn }}</td>
                                             <td class="flex items-center justify-content-between">
-                                                <a class="btn btn-success" href="{{url('setting/subgroup/update/'.$item->id)}}" onclick="return confirm('Are you sure you want to update this Work Name?')">Edit</a>
+                                                <a class="btn btn-success" href="{{url('setting/work-name/update/'.$item->id)}}" onclick="return confirm('Are you sure you want to update this Work Name?')">Edit</a>
                                             </td>
                                         </tr>
                                         

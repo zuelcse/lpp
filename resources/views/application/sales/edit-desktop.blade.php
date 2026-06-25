@@ -76,7 +76,7 @@
                                             <th width="20%">Type</th>
                                         </tr>
                                         
-                                        @foreach($data[0]['sales_items'] as $items):
+                                        @foreach($data[0]['sales_items'] as $key=>$items):
                                         <tr>
                                             <th class="m-0 p-1">
                                                 <input id="qtyInput" type="text" class="form-control form-control-sm"
