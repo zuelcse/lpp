@@ -178,8 +178,6 @@
 
         $('#editForm').on('submit', function(e) {
             e.preventDefault();
-
-                // url: "{{ route('setting-master-size-update') }}",
             $.ajax({
                 url: "{{ route('setting-masters-update') }}",
                 type: "POST",
