@@ -186,25 +186,28 @@ Route::group(['middleware' => 'auth'], function () {
 
 
         // Route::get('/work-type',[SettingController::class,'workType'])->name('setting-work-type');
-        Route::post('/work-type/create',[WorkTypeController::class,'workTypeCreate'])->name('setting-work-type-create');
+        Route::post('/work-type-create',[WorkTypeController::class,'workTypeCreate'])->name('setting-work-type-create');
+        Route::post('/work-type-update',[WorkTypeController::class,'workTypeUpdate'])->name('setting-work-type-update');
         Route::get('/work-types',[WorkTypeController::class,'workTypes'])->name('setting-work-types');
         Route::get('/work-types/edit',[WorkTypeController::class,'workTypesEdit'])->name('setting-work-types-edit');
-        Route::post('/work-types/update',[WorkTypeController::class,'workTypeUpdate'])->name('setting-work-types-update');
+        Route::post('/work-types/update',[WorkTypeController::class,'workTypesUpdate'])->name('setting-work-types-update');
 
         Route::get('/master_size',[SettingController::class,'masterSize'])->name('setting-master-size');
-        Route::get('/master_size/create',[SettingController::class,'masterSizeCreate'])->name('setting-master-size-create');
+        Route::post('/master_size/create',[SettingController::class,'masterSizeCreate'])->name('setting-master-size-create');
+
+        Route::post('/masters_update',[SettingController::class,'update'])->name('setting-masters-update');
 
         Route::get('/master_color',[SettingController::class,'masterColor'])->name('setting-master-color');
-        Route::get('/master_color/create',[SettingController::class,'masterColorCreate'])->name('setting-master-color-create');
+        Route::post('/master_color/create',[SettingController::class,'masterColorCreate'])->name('setting-master-color-create');
 
         Route::get('/master_weight',[SettingController::class,'masterWeight'])->name('setting-master-weight');
-        Route::get('/master_weight/create',[SettingController::class,'masterWeightCreate'])->name('setting-master-weight-create');
+        Route::post('/master_weight/create',[SettingController::class,'masterWeightCreate'])->name('setting-master-weight-create');
 
         Route::get('/master_paper',[SettingController::class,'masterPaper'])->name('setting-master-paper');
-        Route::get('/master_paper/create',[SettingController::class,'masterPaperCreate'])->name('setting-master-paper-create');
+        Route::post('/master_paper/create',[SettingController::class,'masterPaperCreate'])->name('setting-master-paper-create');
 
         Route::get('/master_lamination',[SettingController::class,'masterLamination'])->name('setting-master-lamination');
-        Route::get('/master_lamination/create',[SettingController::class,'masterLaminationCreate'])->name('setting-master-lamination-create');
+        Route::post('/master_lamination/create',[SettingController::class,'masterLaminationCreate'])->name('setting-master-lamination-create');
     });
     
     Route::prefix('ledger')->group(function(){

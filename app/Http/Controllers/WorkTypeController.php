@@ -19,7 +19,7 @@ class WorkTypeController extends Controller
     }
 
     public function workTypeCreate(Request $request){
-        dd($request->all());
+        // dd($request->all());
         $request->validate(
             [
                 'name' => 'required|unique:work_types',
@@ -31,10 +31,12 @@ class WorkTypeController extends Controller
             ]
         );
         WorkType::create($request->all());
-
-        return redirect()
+        return response()->json([
+            'message' => 'Successfully Stored!'
+        ]);
+        /*return redirect()
         ->back()
-        ->with('success', 'Your message has been sent!');
+        ->with('success', 'Your message has been sent!');*/
     }
 
     public function workTypesEdit(Request $request)
@@ -56,16 +58,16 @@ class WorkTypeController extends Controller
         // return view('application.setting.worktype.edit', compact('data'));
     }
 
-    public function create()
+    /*public function create()
     {
         return view('worktypes.create', [
             'colors' => Color::all(),
             'sizes' => Size::all(),
             'papers' => Paper::all()
         ]);
-    }
+    }*/
 
-    public function store(Request $request)
+   /* public function store(Request $request)
     {
         $wt = WorkType::create($request->only('name','name_bn'));
 
@@ -74,9 +76,9 @@ class WorkTypeController extends Controller
         $wt->papers()->sync($request->paper_ids ?? []);
 
         return redirect()->route('worktypes.index');
-    }
+    }*/
 
-    public function edit($id)
+   /* public function edit($id)
     {
         $wt = WorkType::findOrFail($id);
 
@@ -86,13 +88,13 @@ class WorkTypeController extends Controller
             'sizes' => Size::all(),
             'papers' => Paper::all()
         ]);
-    }
+    }*/
 
-    public function workTypeUpdate(Request $request)
+    public function workTypesUpdate(Request $request)
     {
         // dd($request->all());
         $wt = WorkType::with(['sizes','colors','weights','papers','laminations'])->findOrFail($request->id);
-// dd($wt);
+        // dd($wt);
 
         // $wt = WorkType::findOrFail($id);
 
@@ -103,7 +105,33 @@ class WorkTypeController extends Controller
         $wt->weights()->sync($request->weight ?? []);
         $wt->papers()->sync($request->paper ?? []);
         $wt->laminations()->sync($request->lamination ?? []);
-// dd('H');
+        // dd('H');
         return back()->with('success','Updated');
+    }
+
+    public function workTypeUpdate(Request $request){
+        // dd($request->all());
+        $request->validate(
+            [
+                'name' => 'required|unique:work_types,name,'.$request->id,
+                'name_bn' => 'required|string|max:255',
+            ],
+            [
+                'name.required' => 'Group is required',
+                'name.unique' => 'This name already exists.',
+                'name_bn.required' => 'Name is required',
+            ]
+        );
+       
+        WorkType::where('id',$request->id)->update([
+            'name'=>$request->name,
+            'name_bn'=>$request->name_bn
+        ]);
+        return response()->json([
+            'message' => 'Successfully updated!'
+        ]);
+        /*return redirect()
+        ->back()
+        ->with('success', 'Your message has been sent!');*/
     }
 }

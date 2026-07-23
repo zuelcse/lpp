@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\VoucherType;
 use App\Models\VoucherNumbers;
 use App\Models\Receipt;
@@ -293,19 +294,50 @@ class SettingController extends Controller
     public function masterSizeCreate(Request $request){
         $request->validate(
             [
-                'name' => 'required|unique:master_colors',
+                'name' => 'required|unique:master_sizes,name',
                 'name_bn' => 'required|string|max:255',
             ],
             [
                 'name.required' => 'Group is required',
-                'name_bn.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
+                'name_bn.required' => 'Name Bn is required',
             ]
         );
         MasterSize::create($request->all());
 
+        return response()->json([
+            'message' => 'Successfully updated!'
+        ]);
+        /*
         return redirect()
         ->back()
-        ->with('success', 'Your message has been sent!');
+        ->with('success', 'Your message has been sent!');*/
+    }
+
+    public function masterSizeUpdate(Request $request){
+        // dd($request->all());
+        $request->validate(
+            [
+                'name' => 'required|unique:master_sizes,name,'.$request->id,
+                'name_bn' => 'required|string|max:255',
+            ],
+            [
+                'name.required' => 'Group is required',
+                'name.unique' => 'This name already exists.',
+                'name_bn.required' => 'Name Bn is required',
+            ]
+        );
+       
+        MasterSize::where('id',$request->id)->update([
+            'name'=>$request->name,
+            'name_bn'=>$request->name_bn
+        ]);
+        return response()->json([
+            'message' => 'Successfully updated!'
+        ]);
+        /*return redirect()
+        ->back()
+        ->with('success', 'Your message has been sent!');*/
     }
     // /master_size--/--
     // basicColor
@@ -319,19 +351,25 @@ class SettingController extends Controller
     public function masterColorCreate(Request $request){
         $request->validate(
             [
-                'name' => 'required|unique:master_colors',
+                'name' => 'required|unique:master_colors,name',
                 'name_bn' => 'required|string|max:255',
             ],
             [
-                'name.required' => 'Group is required',
-                'name_bn.required' => 'Name is required',
+                'name.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
+                'name_bn.required' => 'Name Bn is required',
             ]
         );
         MasterColor::create($request->all());
 
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully.'
+        ]);
+        /*
         return redirect()
         ->back()
-        ->with('success', 'Your message has been sent!');
+        ->with('success', 'Your message has been sent!');*/
     }
     // work-name--/--
 
@@ -346,19 +384,23 @@ class SettingController extends Controller
     public function masterWeightCreate(Request $request){
         $request->validate(
             [
-                'name' => 'required|unique:master_colors',
+                'name' => 'required|unique:master_weights,name',
                 'name_bn' => 'required|string|max:255',
             ],
             [
                 'name.required' => 'Group is required',
+                'name.unique' => 'This name already exists.',
                 'name_bn.required' => 'Name is required',
             ]
         );
         MasterWeight::create($request->all());
-
-        return redirect()
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully.'
+        ]);
+        /*return redirect()
         ->back()
-        ->with('success', 'Your message has been sent!');
+        ->with('success', 'Your message has been sent!');*/
     }
     // /master_weight--/--
 
@@ -372,19 +414,23 @@ class SettingController extends Controller
     public function masterPaperCreate(Request $request){
         $request->validate(
             [
-                'name' => 'required|unique:master_colors',
+                'name' => 'required|unique:master_papers,name',
                 'name_bn' => 'required|string|max:255',
             ],
             [
-                'name.required' => 'Group is required',
+                'name.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
                 'name_bn.required' => 'Name is required',
             ]
         );
         MasterPaper::create($request->all());
-
-        return redirect()
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully.'
+        ]);
+        /*return redirect()
         ->back()
-        ->with('success', 'Your message has been sent!');
+        ->with('success', 'Your message has been sent!');*/
     }
     // /master_paper--/--
 
@@ -398,20 +444,52 @@ class SettingController extends Controller
     public function masterLaminationCreate(Request $request){
         $request->validate(
             [
-                'name' => 'required|unique:master_colors',
+                'name' => 'required|unique:master_laminations,name',
                 'name_bn' => 'required|string|max:255',
             ],
             [
                 'name.required' => 'Group is required',
+                'name.unique' => 'This name already exists.',
                 'name_bn.required' => 'Name is required',
             ]
         );
         MasterLamination::create($request->all());
 
-        return redirect()
-        ->back()
-        ->with('success', 'Your message has been sent!');
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully.'
+        ]);
     }
     // /master_paper--/--
+
+    // Common update
+    public function update(Request $request){
+        $modelClass = "App\\Models\\Master" . ucfirst($request->type);
+        $model = new $modelClass;
+        return $this->commonUpdate($request, $model);
+    }
+    protected function commonUpdate(Request $request, $model){
+        $id = $request->id;
+        $request->validate([
+            'name' => [
+                'required',
+                Rule::unique($model->getTable(), 'name')->ignore($id),
+            ],
+            'name_bn' => 'required|string|max:255',
+        ]);
+
+        $record = $model::findOrFail($id);
+        // dd($record);
+        $record->update([
+            'name'    => $request->name,
+            'name_bn' => $request->name_bn,
+            'status'  => $request->status ?? 1,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Updated successfully.'
+        ]);
+    }
     
 }

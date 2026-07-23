@@ -52,7 +52,7 @@
                                             <td>{{ $item->Group->alias.'-'.$item->Group->name }}</td>
                                             <td>{{ $item->Subgroups?->alias.'-'.$item->Subgroups?->name }}</td>
                                             <td class="flex items-center justify-content-between">
-                                                <a class="btn btn-success" href="{{url('ledger/update/'.$item->id)}}" onclick="return confirm('Are you sure you want to update this Ledger?')">Edit</a>
+                                                <a class="btn btn-sm btn-primary" href="{{url('ledger/update/'.$item->id)}}" onclick="return confirm('Are you sure you want to update this Ledger?')">Edit</a>
                                             </td>
                                         </tr>
                                         

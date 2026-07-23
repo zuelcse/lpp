@@ -41,7 +41,7 @@
                                             <td>{{ $item->goddown }}</td>
                                             <td>{{ $item->sales_account }}</td>
                                             <td>
-                                                <button type="button" onclick="updateVoucherTypeModal('{{$item->id}}','{{$item->voucher_prefix}}', '{{$item->start_number}}', '{{$item->goddown}}', '{{$item->sales_account}}')" class="btn btn-primary btn-shadow btn-sm font-weight-bold pt-1 pb-1">Update</button>  
+                                                <button type="button" onclick="updateVoucherTypeModal('{{$item->id}}','{{$item->voucher_prefix}}', '{{$item->start_number}}', '{{$item->goddown}}', '{{$item->sales_account}}')" class="btn btn-primary btn-shadow btn-sm font-weight-bold pt-1 pb-1">Edit</button>  
                                             </td>
                                         </tr>
                                         

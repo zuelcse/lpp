@@ -40,7 +40,7 @@
                                             <td>{{ $item->alias }}</td>
                                             <td>{{ $item->name }}</td>
                                             <td class="flex items-center justify-content-between">
-                                                <a class="btn btn-success" href="{{url('setting/subgroup/update/'.$item->id)}}" onclick="return confirm('Are you sure you want to update this Sub Group?')">Edit</a>
+                                                <a class="btn btn-sm btn-primary" href="{{url('setting/subgroup/update/'.$item->id)}}" onclick="return confirm('Are you sure you want to update this Sub Group?')">Edit</a>
                                             </td>
                                         </tr>
                                         

@@ -3,7 +3,7 @@
 @section('title', 'Work Type')
 
 @section('content')
-
+    <!-- <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> -->
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
@@ -15,7 +15,7 @@
                         <box-icon type='solid' name='plus-square'></box-icon>
                         New
                     </a>  -->
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#workTypeModal">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
                         <box-icon type='solid' name='plus-square'></box-icon>
                         New
                     </button>
@@ -74,8 +74,8 @@
                                                 </button>
                                                 <a class="btn btn-sm btn-success" href="{{url('setting/work-types/edit?id='.$item->id)}}" onclick="return confirm('Are you sure you want to update this Work Type?')">
                                                     <box-icon type='solid' name='edit'></box-icon> 
-                                                Assign
-                                            </a>
+                                                    Assign
+                                                </a>
                                             </td>
                                         </tr>
                                         
@@ -101,122 +101,138 @@
 
     
 
-<div class="modal fade" id="workTypeModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
+    <div class="modal fade" id="addModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
 
-      <div class="modal-header">
-        <h5>Add Work Type</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
+          <div class="modal-header">
+            <h5>Add Work Type</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
 
-      <div class="modal-body">
-        <form id="workTypeForm" method="POST">
-            @csrf
+          <div class="modal-body">
+            <form id="addForm" method="POST">
+                @csrf
 
-            <div class="mb-3">
-                <label>Name</label>
-                <input type="text" name="name" class="form-control">
-            </div>
-
-            <div class="mb-3">
-                <label>Name (Bangla)</label>
-                <input type="text" name="name_bn" class="form-control">
-            </div>
-
-            <button type="submit" class="btn btn-success" onclick="return confirm('Are you want to proceed?')">Save</button>
-        </form>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="editModal" tabindex="-1">
-    <div class="modal-dialog">
-        <form id="editForm" method="POST">
-            @csrf
-            @method('PUT')
-
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5>Edit Work Name</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="mb-3">
+                    <label>Name</label>
+                    <input type="text" name="name" class="form-control">
                 </div>
 
-                <div class="modal-body">
+                <div class="mb-3">
+                    <label>Name (Bangla)</label>
+                    <input type="text" name="name_bn" class="form-control">
+                </div>
 
-                    <input type="hidden" name="id" id="edit_id">
+                <button type="submit" class="btn btn-success" onclick="return confirm('Are you want to proceed?')">Save</button>
+            </form>
+          </div>
 
-                    <div class="mb-2">
-                        <label>Name</label>
-                        <input type="text" name="name" id="edit_name" class="form-control form-control-sm">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form id="editForm" method="POST">
+                @csrf
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5>Edit Work Type</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <div class="mb-2">
-                        <label>Name (Bangla)</label>
-                        <input type="text" name="name_bn" id="edit_name_bn" class="form-control form-control-sm">
+                    <div class="modal-body">
+
+                        <input type="hidden" name="id" id="edit_id">
+
+                        <div class="mb-2">
+                            <label>Name</label>
+                            <input type="text" name="name" id="edit_name" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Name (Bangla)</label>
+                            <input type="text" name="name_bn" id="edit_name_bn" class="form-control form-control-sm">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Are you want to proceed?')">Update</button>
                     </div>
 
                 </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Are you want to proceed?')">Update</button>
-                </div>
-
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
 
 
-<script> 
-    $('#workTypeForm').on('submit', function(e){
-        e.preventDefault();
-        alert('Here');return;
-        $.ajax({
-            url: "{{ route('setting-work-type-create') }}",
-            method: "POST",
-            data: $(this).serialize(),
-            success: function(res){
-                alert(res.message);
-                $('#workTypeModal').modal('hide');
-                $('#workTypeForm')[0].reset();
-            },
-            error: function(err){
-                console.log(err.responseJSON);
-            }
+    <script>
+        $('#addForm').on('submit', function(e){
+            e.preventDefault();
+            // alert('Here');return;
+            $.ajax({
+                url: "{{ route('setting-work-type-create') }}",
+                method: "POST",
+                data: $(this).serialize(),
+                success: function(res) {
+                    $('#addModal').modal('hide');
+                    $('#addForm')[0].reset();
+                    location.reload();
+                    toastr.success(res.message);
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) { // Validation Error
+                        $.each(xhr.responseJSON.errors, function(key, value) {
+                            toastr.error(value[0]); // Show first error for each field
+                        });
+                    } else {
+                        toastr.error('Something went wrong.');
+                    }
+                }
+            });
+        });       
+
+        $(document).on('click', '.editBtn', function () {
+            // console.log($(this).data());
+            $('#edit_id').val($(this).data('id'));
+            $('#edit_name').val($(this).data('name'));
+            $('#edit_name_bn').val($(this).data('name-bn'));
+            // dynamic route set
+            // $('#editForm').action('/workname/' + id);
         });
-    });
 
-    /*function editData(id, name, name_bn) {
-        alert(name);
-        $('#edit_id').val(id);
-        $('#edit_name').val(name);
-        $('#edit_name_bn').val(name_bn);
-        // document.getElementById('edit_id').value = id;
-        // document.getElementById('edit_name').value = name;
-        // document.getElementById('edit_name_bn').value = name_bn;
+        $('#editForm').on('submit', function(e) {
+            e.preventDefault();
 
-        // dynamic route set
-        // document.getElementById('editForm').action = '/workname/' + id;
-    }*/
-    function editData(id, name, name_bn) {
-        // console.log(id, name, name_bn);
-        $('#edit_id').val(id);
-        $('#edit_name').val(name);
-        $('#edit_name_bn').val(name_bn);
-    }
+            $.ajax({
+                url: "{{ route('setting-work-type-update') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(res) {
+                    $('#editModal').modal('hide');
+                    $('#editForm')[0].reset();
+                    location.reload();
+                    toastr.success(res.message);
+                },
+                error: function(xhr) {
 
-    $(document).on('click', '.editBtn', function () {
-        alert('clicked');
-        editData(
-            $(this).data('id'),
-            $(this).data('name'),
-            $(this).data('name-bn')
-        );
-    });
-</script>
+                    if (xhr.status === 422) { // Validation Error
+
+                        $.each(xhr.responseJSON.errors, function(key, value) {
+                            toastr.error(value[0]); // Show first error for each field
+                        });
+
+                    } else {
+                        toastr.error('Something went wrong.');
+                    }
+
+                }
+            });
+        });
+    </script>
 
 @endsection
 
