@@ -425,17 +425,17 @@ class SalesController extends Controller
             // return redirect('sales/details/'.$id)->with($msgtype,$msg);
             return redirect('sales/details/'.$id);
         }
-        $data = $this->salesDetails($request->id);
+        $data = $this->details($request);
 
+        // dd($data);
         $WorkTypes = WorkType::orderBy('name','ASC')->get()->toArray();
         $work_names = WorkName::selectRaw("id, name")->where('debit_head',$data[0]['debit_head'])
                   ->orderBy('name','ASC')->pluck('name','id');
 
-        $ledgers = Ledger::get();
+        $ledgers = Ledger::where('id',$data[0]['debit_head'])->get();
         $stockItem = StockItem::get();
 
         $voucherType = $this->voucherType;
-        // dd($data);
         // return view('application.sales.edit',compact('data','ledgers','stockItem'));
         return view('application.sales.edit-desktop',compact('data','ledgers','stockItem','voucherType','WorkTypes','work_names'));
     }
@@ -882,48 +882,18 @@ class SalesController extends Controller
     
     public function details(Request $request){
         if(empty($request->id)){exit('ID is Null!');}
-        // $data= Sales::with(['Ledger','VoucherType','CostCenter'])
-        //     ->where('id',$request->id)
-        //     ->first();
-            // dd($data);
-            
-        //  new 
-        $data = Sales::with('Ledger','MasterItems.StockItem.Unit')
+        return Sales::with([
+                'Ledger',
+                'MasterItems.WorkName',
+                'MasterItems.WorkType',
+                'MasterItems.Size',
+                'MasterItems.Color',
+                'MasterItems.Weight',
+                'MasterItems.Paper',
+                'MasterItems.Lamination',
+            ])
             ->where('id',$request->id)
-            ->get()
-            ->map(function($sales) {
-
-                $MasterItems = $sales->MasterItems;
-
-                return [
-                    'sales_id' => $sales->id,
-                    'voucher_no' => $sales->voucher_no,
-                    'debit_head' => $sales->Ledger->name,
-                    'total_amount' => $sales->total_amount,
-                    'discount_amount' => $sales->discount_amount,
-                    'gross_amount' => $sales->gross_amount,
-                    'paid_amount' => $sales->paid_amount,
-                    'narration' => $sales->narration,
-                    'date' => date('d-m-Y', strtotime($sales->date)),
-                    'sales_items' => $sales->MasterItems != null ? 
-                    $sales->MasterItems->map(function($item) {
-                        return [
-                            'name' => $item->StockItem->name,
-                            'sales_quantity' => $item->sales_quantity,
-                            'unit' => $item->StockItem->Unit->name,
-                            'rate' => $item->rate,
-                            'amount' => $item->amount,
-                            'discount_amount' => $item->discount_amount,
-                            'net_amount' => $item->net_amount
-                        ];
-                    }) : null
-                ];
-            })
-            ->toArray();
-            
-            // dd($data);
-        // end
-        return view('application.sales.details', compact('data'));
+            ->get()->toArray();
     }
 
     

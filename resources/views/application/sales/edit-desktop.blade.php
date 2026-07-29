@@ -15,7 +15,7 @@
                 </div>
                 
                 <div class="card-body">
-                    <form method="POST" action="{{route('sales-invoice-create')}}">
+                    <form method="POST" action="{{route('sales-update',$data[0]['id'])}}">
                         @csrf
                         <input type="hidden" name="voucherType" value="{{$voucherType}}"/>
                         <div class="mb-1 p-1 border border-secondary">
@@ -43,7 +43,7 @@
                                         <label class="col-8 col-sm-3 col-form-label"
                                             for="ledger">Ledger Name</label>
                                         <div class="col-12 col-sm-9">
-                                            <select type="text" class="form-control form-control-sm js-example-basic-single" name="ledger" id="ledger" placeholder="Enter Ledger Type" required="required" onchange="fetchLedgerDetails()">
+                                            <select type="text" class="form-control form-control-sm js-example-basic-single" name="ledger" id="ledger" placeholder="Enter Ledger Type" required="required" disabled onchange="fetchLedgerDetails()">
                                                 <option value="">Select Ledger Type</option>
                                                 @foreach ($ledgers as $key => $item)
                                                     <option value="{{ $item->id }}" {{$item->id == $data[0]['debit_head']?'selected':''}}>{{ $item->alias.'-'.$item->name }}</option>
@@ -76,17 +76,16 @@
                                             <th width="20%">Type</th>
                                         </tr>
                                         
-                                        @foreach($data[0]['sales_items'] as $key=>$items):
                                         <tr>
                                             <th class="m-0 p-1">
                                                 <input id="qtyInput" type="text" class="form-control form-control-sm"
-                                                    placeholder="Enter Quantity" autocomplete="off" onkeyup="rateCal('qty')" value="{{$items['sales_quantity']}}" />
+                                                    placeholder="Enter Quantity" autocomplete="off" onkeyup="rateCal('qty')" value="" />
                                             </th>
                                             <th class="m-0 p-1">
                                                 <select class="form-control form-control-sm items js-example-basic-single" id="work_name" >
                                                     <option value="">-Work Name-</option>
                                                     @forelse($work_names as $key => $item)
-                                                        <option value="{{ $key }}" @selected($items['work_name_id'] == $key)>{{ $item }}</option>
+                                                        <option value="{{ $key }}" >{{ $item }}</option>
                                                     @empty
                                                     <option value="">No Items Found</option>
                                                     @endforelse
@@ -96,7 +95,7 @@
                                                 <select class="form-control form-control-sm items js-example-basic-single" id="work_type" onchange ="fetchWorkTypeVeriations()">
                                                     <option value="">-Work Type-</option>
                                                     @forelse($WorkTypes as $key => $item)
-                                                        <option value="{{ $item['id'] }}" @selected($items['work_type_id'] == $item['id'])>{{ $item['name'] }}</option>
+                                                        <option value="{{ $item['id'] }}" >{{ $item['name'] }}</option>
                                                     @empty
                                                     <option value="">No Items Found</option>
                                                     @endforelse
@@ -142,9 +141,59 @@
                                                 <button title="Add & Next!" onclick="addItemBtn(1)" type="button" class="btn btn-sm btn-secondary float-end">></button>
                                             </th>
                                         </tr>
-                                        @endforeach
                                     </thead>
-                                    <tbody></tbody>
+                                    <tbody>
+                                        @foreach($data[0]['master_items'] as $key=>$items)
+                                        <tr>
+                                            <td class="m-0 p-1">{{$items['sales_quantity']}} 
+                                                <input name="item[$key][quantity]" class="form-control tableQty" type="hidden" value="{{$items['sales_quantity']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['work_name']['name']}} 
+                                                <input type="hidden" name="item[$key][work_name]" value="{{$items['work_name_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['work_type']['name']}} 
+                                                <input type="hidden" name="item[$key][work_type]" value="{{$items['work_type_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['size']['name'] ?? ''}} 
+                                                <input type="hidden" name="item[$key][size]" value="{{$items['size_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['color']['name'] ?? ''}} 
+                                                <input type="hidden" name="item[$key][color]" value="{{$items['color_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['weight']['name'] ?? ''}} 
+                                                <input type="hidden" name="item[$key][weight]" value="{{$items['weight_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['paper']['name'] ?? ''}} 
+                                                <input type="hidden" name="item[$key][paper]" value="{{$items['paper_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['lamination']['name'] ?? ''}} 
+                                                <input type="hidden" name="item[$key][lamination]" value="{{$items['lamination_id']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['note']}} 
+                                                <input type="hidden" name="item[$key][note]" value="{{$items['note']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['rate']}} 
+                                                <input type="hidden" name="item[$key][rate]" class="form-control tableRate" value="{{$items['rate']}}">
+                                            </td>
+                                            <td class="m-0 p-1">{{$items['amount']}} 
+                                                <input type="hidden" name="item[$key][amount]" class="form-control tableamount" value="{{$items['amount']}}">
+                                            </td>
+                                            <td class="m-0 p-1">
+                                                <button type="button"
+                                                        class="btn btn-secondary btn-xs float-start editBtn" 
+                                                        title="Edit" >
+                                                    <i class="tf-icons bx bxs-edit"></i>
+                                                </button>
+
+                                                <button type="button" 
+                                                        class="btn btn-danger btn-xs float-end removeBtn" 
+                                                        title="Delete">
+                                                    <i class="tf-icons bx bxs-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
                                 </table>
                             </div>
                             <!-- <hr class="border-primary mt-2 mb-2"> -->
@@ -154,7 +203,7 @@
                                         <div class="row">
                                             <label class="col-6 col-sm-10 col-form-label text-end" for="grand_total">Grand Total TK</label>
                                             <div class="col-6 col-sm-2">
-                                                <input type="text" class="form-control form-control-sm text-end" id="grand_total" name="grand_total" readonly placeholder="Extra Discount TK" autocomplete="off"/>
+                                                <input type="text" class="form-control form-control-sm text-end" id="grand_total" name="grand_total" readonly placeholder="Extra Discount TK" value="{{$data[0]['total_amount']}}" autocomplete="off"/>
                                             </div>
                                         </div>
                                     </div>
@@ -162,7 +211,7 @@
                                         <div class="row">
                                             <label class="col-6 col-sm-10 col-form-label text-end" for="extra_discount">Extra Discount TK</label>
                                             <div class="col-6 col-sm-2">
-                                                <input type="text" onkeyup="getBalanceAmount()" class="form-control form-control-sm text-end" id="extra_discount" name="extra_discount" placeholder="Extra Discount TK" autocomplete="off"/>
+                                                <input type="text" onkeyup="getBalanceAmount()" class="form-control form-control-sm text-end" id="extra_discount" name="extra_discount" placeholder="Extra Discount TK"  value="{{$data[0]['discount_amount']}}" autocomplete="off"/>
                                             </div>
                                         </div>
                                     </div>
@@ -170,7 +219,7 @@
                                         <div class="row">
                                             <label class="col-6 col-sm-10 col-form-label text-end" for="payable_amount">Payable Amount TK</label>
                                             <div class="col-6 col-sm-2">
-                                                <input type="text" class="form-control form-control-sm text-end" id="payable_amount" name="payable_amount" placeholder="Payable Amount" readonly autocomplete="off"/>
+                                                <input type="text" class="form-control form-control-sm text-end" id="payable_amount" name="payable_amount" placeholder="Payable Amount" readonly value="{{$data[0]['gross_amount']}}" autocomplete="off"/>
                                             </div>
                                         </div>
                                     </div>
@@ -178,7 +227,7 @@
                                         <div class="row">
                                             <label class="col-6 col-sm-10 col-form-label text-end" for="previous_balance">Previous Balance</label>
                                             <div class="col-6 col-sm-2">
-                                                <input type="text" class="form-control form-control-sm text-end" id="previous_balance" name="previous_balance" placeholder="Enter Paid Amount" autocomplete="off"/>
+                                                <input type="text" class="form-control form-control-sm text-end" id="previous_balance" name="previous_balance" placeholder="Enter Paid Amount"  value="{{$data[0]['previous_balance']}}" autocomplete="off"/>
                                             </div>
                                         </div>
                                     </div>
@@ -186,7 +235,7 @@
                                         <div class="row">
                                             <label class="col-6 col-sm-10 col-form-label text-end" for="paid_amount">Paid Amount TK</label>
                                             <div class="col-6 col-sm-2">
-                                                <input type="text" onkeyup="getBalanceAmount()" class="form-control form-control-sm text-end" id="paid_amount" name="paid_amount" placeholder="Enter Paid Amount" autocomplete="off"/>
+                                                <input type="text" onkeyup="getBalanceAmount()" class="form-control form-control-sm text-end" id="paid_amount" name="paid_amount" placeholder="Enter Paid Amount" value="{{$data[0]['paid_amount']}}"autocomplete="off"/>
                                             </div>
                                         </div>
                                     </div>
@@ -194,7 +243,7 @@
                                         <div class="row">
                                             <label class="col-6 col-sm-10 col-form-label text-end" for="balance">Balance/Refund TK</label>
                                             <div class="col-6 col-sm-2">
-                                                <input type="text" class="form-control form-control-sm text-end" id="balance" name="balance" placeholder="Balance" autocomplete="off"/>
+                                                <input type="text" class="form-control form-control-sm text-end" id="balance" name="balance" placeholder="Balance"  value="{{$data[0]['paid_amount']-$data[0]['gross_amount']}}" autocomplete="off"/>
                                             </div>
                                         </div>
                                     </div>
@@ -202,7 +251,7 @@
                                         <div class="row">
                                             <label class="col-8 col-sm-4 col-form-label" for="narration_remarks">Narration/Remarks</label>
                                             <div class="col-12 col-sm-8">
-                                                <textarea name="narration_remarks" id="narration_remarks" rows="1" class="form-control form-control-sm"></textarea>
+                                                <textarea name="narration_remarks" id="narration_remarks" rows="1" class="form-control form-control-sm"> {{$data[0]['narration']}}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -212,7 +261,7 @@
 
                         <div class="row mt-3">
                             <div class="col-sm-12">
-                                <button type="submit" class="btn btn-primary active d-table m-0 m-auto">Create</button>
+                                <button type="submit" class="btn btn-primary active d-table m-0 m-auto">Update</button>
                             </div>
                         </div>
                     </form>
@@ -220,10 +269,6 @@
             </div>
         </div>
     </div>
-                
-
-
-
 
     <script>
         $(document).ready(function () {
@@ -238,6 +283,46 @@
             });
 
             // rateCal('qty');
+        });
+
+        $(document).on('click', '.editBtn', async function () {
+
+            let row = $(this).closest('tr');
+
+            $('#qtyInput').val(row.find('input[name*="[quantity]"]').val());
+
+            $('#work_name').val(row.find('input[name*="[work_name]"]').val()).trigger('change');
+            
+
+            let work_type = row.find('input[name*="[work_type]"]').val();
+            $('#work_type').val(work_type).trigger('change');
+
+            // Wait for AJAX to load Size/Color/Weight/Paper/Lamination
+            // await fetchWorkTypeVeriations();
+            let size       = row.find('input[name*="[size]"]').val();
+            let color      = row.find('input[name*="[color]"]').val();
+            let weight     = row.find('input[name*="[weight]"]').val();
+            let paper      = row.find('input[name*="[paper]"]').val();
+            let lamination = row.find('input[name*="[lamination]"]').val();
+
+            setTimeout(function () {
+                $('#size').val(size).trigger('change');
+                $('#color').val(color).trigger('change');
+                $('#weight').val(weight).trigger('change');
+                $('#paper').val(paper).trigger('change');
+                $('#lamination').val(lamination).trigger('change');
+            }, 500);
+
+            $('#note').val(row.find('input[name*="[note]"]').val());
+            $('#rateInput').val(row.find('input[name*="[rate]"]').val());
+            $('#amount').val(row.find('input[name*="[amount]"]').val());
+
+            // Remove current row
+            row.remove();
+
+            updateGrandTotal();
+
+            $('#qtyInput').focus();
         });
 
 
@@ -310,168 +395,189 @@
         }
 
 
-    // Add item to table
-    // document.getElementById('addItemBtn').addEventListener('click', function() {
-    let m = 1;
-    function addItemBtn(i) {
-        var qty = $(`#qtyInput`).val();
+        // Add item to table
+        // document.getElementById('addItemBtn').addEventListener('click', function() {
+        let m = "{{$key+1}}";
 
-        var work_name = $(`#work_name`).val();
-        // var work_name_text = $('#work_name option:selected').text();
-        var work_name_text ='';
-        if(work_name) var work_name_text = $('#work_name option:selected').text();
-        
-        var work_type = $(`#work_type`).val();
-        if(!work_type){alert('Select an Work Type');return;}
-        var work_type_text = $('#work_type option:selected').text();
-        
-        var size = $(`#size`).val();
-        var size_text = size?$('#size option:selected').text():'';
-        
-        var color = $(`#color`).val();
-        var color_text = color?$('#color option:selected').text():'';
-        
-        var weight = $(`#weight`).val();
-        var weight_text = weight?$('#weight option:selected').text():'';
-        
-        var paper = $(`#paper`).val();
-        var paper_text = paper?$('#paper option:selected').text():'';
-        
-        var lamination = $(`#lamination`).val();
-        var lamination_text = lamination?$('#lamination option:selected').text():'';
+        function addItemBtn(i) {
+            var qty = $(`#qtyInput`).val();
 
-        var note = $(`#note`).val();
-        var rate = $(`#rateInput`).val();
-        // var amount = $(`#amount`).val();
+            var work_name = $(`#work_name`).val();
+            // var work_name_text = $('#work_name option:selected').text();
+            var work_name_text ='';
+            if(work_name) var work_name_text = $('#work_name option:selected').text();
+            
+            var work_type = $(`#work_type`).val();
+            if(!work_type){alert('Select an Work Type');return;}
+            var work_type_text = $('#work_type option:selected').text();
+            
+            var size = $(`#size`).val();
+            var size_text = size?$('#size option:selected').text():'';
+            
+            var color = $(`#color`).val();
+            var color_text = color?$('#color option:selected').text():'';
+            
+            var weight = $(`#weight`).val();
+            var weight_text = weight?$('#weight option:selected').text():'';
+            
+            var paper = $(`#paper`).val();
+            var paper_text = paper?$('#paper option:selected').text():'';
+            
+            var lamination = $(`#lamination`).val();
+            var lamination_text = lamination?$('#lamination option:selected').text():'';
 
-        let amount = (qty * rate);
-        // alert(note+lamination_text);
-        // return;
+            var note = $(`#note`).val();
+            var rate = $(`#rateInput`).val();
+            // var amount = $(`#amount`).val();
 
-        let row = `
-            <tr>
-                <td>${qty} <input name="item[${m}][quantity]" class="form-control tableQty" type="hidden" value="${qty}"></td>
-                <td>${work_name_text} <input type="hidden" name="item[${m}][work_name]" value="${work_name}"></td>
-                <td>${work_type_text} <input type="hidden" name="item[${m}][work_type]" value="${work_type}"></td>
-                <td>${size_text} <input type="hidden" name="item[${m}][size]" value="${size}"></td>
-                <td>${color_text} <input type="hidden" name="item[${m}][color]" value="${color}"></td>
-                <td>${weight_text} <input type="hidden" name="item[${m}][weight]" value="${weight}"></td>
-                <td>${paper_text} <input type="hidden" name="item[${m}][paper]" value="${paper}"></td>
-                <td>${lamination_text} <input type="hidden" name="item[${m}][lamination]" value="${lamination}"></td>
-                <td>${note} <input type="hidden" name="item[${m}][note]" value="${note}"></td>
-                <td>${rate} <input type="hidden" name="item[${m}][rate]" class="form-control tableRate" value="${rate}"></td>
-                <td>${amount.toFixed(2)} <input type="hidden" name="item[${m}][amount]" class="form-control tableamount" value="${amount.toFixed(2)}"></td>
-                <td><button class="btn btn-danger btn-sm removeBtn">X</button></td>
-            </tr>`;
+            let amount = (qty * rate);
+            // alert(note+lamination_text);
+            // return;
 
-        document.querySelector('#itemTable tbody').insertAdjacentHTML('beforeend', row);
+            let row = `
+                <tr>
+                    <td class="m-0 p-1">${qty} <input name="item[${m}][quantity]" class="form-control tableQty" type="hidden" value="${qty}"></td>
+                    <td class="m-0 p-1">${work_name_text} <input type="hidden" name="item[${m}][work_name]" value="${work_name}"></td>
+                    <td class="m-0 p-1">${work_type_text} <input type="hidden" name="item[${m}][work_type]" value="${work_type}"></td>
+                    <td class="m-0 p-1">${size_text} <input type="hidden" name="item[${m}][size]" value="${size}"></td>
+                    <td class="m-0 p-1">${color_text} <input type="hidden" name="item[${m}][color]" value="${color}"></td>
+                    <td class="m-0 p-1">${weight_text} <input type="hidden" name="item[${m}][weight]" value="${weight}"></td>
+                    <td class="m-0 p-1">${paper_text} <input type="hidden" name="item[${m}][paper]" value="${paper}"></td>
+                    <td class="m-0 p-1">${lamination_text} <input type="hidden" name="item[${m}][lamination]" value="${lamination}"></td>
+                    <td class="m-0 p-1">${note} <input type="hidden" name="item[${m}][note]" value="${note}"></td>
+                    <td class="m-0 p-1">${rate} <input type="hidden" name="item[${m}][rate]" class="form-control tableRate" value="${rate}"></td>
+                    <td class="m-0 p-1">${amount.toFixed(2)} <input type="hidden" name="item[${m}][amount]" class="form-control tableamount" value="${amount.toFixed(2)}"></td>
+                    <td class="m-0 p-1">
+                        <button type="button"
+                                class="btn btn-secondary btn-xs editBtn float-start" 
+                                title="Edit" >
+                            <i class="tf-icons bx bxs-edit"></i>
+                        </button>
 
-        updateGrandTotal();
+                        <button type="button" 
+                                class="btn btn-danger btn-xs removeBtn float-end" 
+                                title="Delete">
+                            <i class="tf-icons bx bxs-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
 
-        // Reset inputs
-        // itemSelect.value = null;
-        let qtyint='';
-        // $('#itemSelect').val(null).trigger('change');
-        if(i==1){
-            // $('#paid_amount').focus();
-            $('#extra_discount').focus();
-        } else{
-            // $('#itemSelect').select2('open');
-            $('#qtyInput').focus();
-            qtyint=1;
-        }
+            document.querySelector('#itemTable tbody').insertAdjacentHTML('beforeend', row);
 
-        $(`#qtyInput`).val('');
-        $(`#rateInput`).val(0);
-        $(`#amount`).val(0);
-        $(`#discount`).val(0);
-        $(`#damount`).val(0);
-        $(`#amountwithtax`).val(0);
-
-        // document.getElementById('qtyInput').value = qtyint;
-        // document.getElementById('rateInput').value = '';
-        m++;
-        // document.getElementById('discountInput').value = 0;
-    }
-
-    // Handle delete, qty, discount change
-    /*document.addEventListener('input', function(e){
-        // if(e.target.classList.contains('tableQty') || e.target.classList.contains('tableDiscount')){
-        if(e.target.classList.contains('qtyInput')){
-        alert(e);
-            let row = e.target.closest('tr');
-            recalcRow(row);
             updateGrandTotal();
-        }
-    });*/
 
-    document.addEventListener('click', function(e){
-        if(e.target.classList.contains('removeBtn')){
-            e.target.closest('tr').remove();
-            updateGrandTotal();
-        }
-    });
+            // Reset inputs
+            // itemSelect.value = null;
+            let qtyint='';
+            // $('#itemSelect').val(null).trigger('change');
+            if(i==1){
+                // $('#paid_amount').focus();
+                $('#extra_discount').focus();
+            } else{
+                // $('#itemSelect').select2('open');
+                $('#qtyInput').focus();
+                qtyint=1;
+            }
 
-    function recalcRow(row){
-        // alert(row);
-        let qty = parseFloat(row.querySelector('.tableQty').value);
-        let rate = parseFloat(row.querySelector('.tableRate').value);
-        let discount = parseFloat(row.querySelector('.tableDiscount').value);
-        let total = (qty * rate) - discount;
-        row.querySelector('.tableTotal').value = total.toFixed(2);
-    }
-
-    function rateCal(itype){
-        let qty = $(`#qtyInput`).val();
-        let rate = $(`#rateInput`).val();
-        let discount = $(`#discount`).val();
-        let damount = $(`#damount`).val();
-        let amount = $(`#amount`).val();
-
-        if((itype === 'qty') || (itype === 'rate')){
-            amount = parseFloat(qty * rate);
-            $(`#amount`).val(Number(amount.toFixed(2)));
-            discount=0;
-            damount=0;
+            $(`#qtyInput`).val('');
+            $(`#rateInput`).val(0);
+            $(`#amount`).val(0);
             $(`#discount`).val(0);
             $(`#damount`).val(0);
-        }else if(itype == 'amount'){
-            rate = parseFloat(amount/qty);
-            $(`#rateInput`).val(Number(rate.toFixed(2)));
-            $(`#discount`).val(0);
-        }else if(itype == 'discount'){
-            damount = parseFloat((discount/100) * amount).toFixed(2);
-            // alert('H'+damount);
-            $(`#damount`).val(damount);
-        }
-        else if(itype == 'damount'){
-            // damount = parseFloat((discount/100) * amount).toFixed(2);
-            // $(`#discount`).val(0);
+            $(`#amountwithtax`).val(0);
+
+            // document.getElementById('qtyInput').value = qtyint;
+            // document.getElementById('rateInput').value = '';
+            m++;
+            // document.getElementById('discountInput').value = 0;
         }
 
+        // Handle delete, qty, discount change
+        /*document.addEventListener('input', function(e){
+            // if(e.target.classList.contains('tableQty') || e.target.classList.contains('tableDiscount')){
+            if(e.target.classList.contains('qtyInput')){
+            alert(e);
+                let row = e.target.closest('tr');
+                recalcRow(row);
+                updateGrandTotal();
+            }
+        });*/
 
-        let amountwithtax = parseFloat(amount-damount);
-        $(`#amountwithtax`).val(Number(amountwithtax.toFixed(2)));
-    }
+        /*document.addEventListener('click', function(e){
+            if(e.target.classList.contains('removeBtn')){
+                e.target.closest('tr').remove();
+                updateGrandTotal();
+            }
+        });*/
 
-    function getBalanceAmount(){
-        let grand_total = $(`#grand_total`).val();
-        let payable_amount = $(`#payable_amount`).val();
-        let paid_amount = $(`#paid_amount`).val();
-        let extra_discount = $(`#extra_discount`).val();
-        payable_amount = grand_total - extra_discount; 
+        $(document).on('click', '.removeBtn', function (e) {
+            e.preventDefault();
 
-        let rest_amount = parseFloat(paid_amount - payable_amount);
-        $(`#payable_amount`).val(Number(payable_amount.toFixed(2)));
-        $(`#balance`).val(Number(rest_amount.toFixed(2)));
-    }
+            $(this).closest('tr').remove();
 
-    function updateGrandTotal(){
-        let sum = 0;
-        document.querySelectorAll('.tableamount').forEach(t => sum += parseFloat(t.value));
-        document.getElementById('payable_amount').value = sum.toFixed(2);
-        document.getElementById('grand_total').value = sum.toFixed(2);
-    }
-</script>
+            updateGrandTotal();
+        });
+
+        function recalcRow(row){
+            // alert(row);
+            let qty = parseFloat(row.querySelector('.tableQty').value);
+            let rate = parseFloat(row.querySelector('.tableRate').value);
+            let discount = parseFloat(row.querySelector('.tableDiscount').value);
+            let total = (qty * rate) - discount;
+            row.querySelector('.tableTotal').value = total.toFixed(2);
+        }
+
+        function rateCal(itype){
+            let qty = $(`#qtyInput`).val();
+            let rate = $(`#rateInput`).val();
+            let discount = $(`#discount`).val();
+            let damount = $(`#damount`).val();
+            let amount = $(`#amount`).val();
+
+            if((itype === 'qty') || (itype === 'rate')){
+                amount = parseFloat(qty * rate);
+                $(`#amount`).val(Number(amount.toFixed(2)));
+                discount=0;
+                damount=0;
+                $(`#discount`).val(0);
+                $(`#damount`).val(0);
+            }else if(itype == 'amount'){
+                rate = parseFloat(amount/qty);
+                $(`#rateInput`).val(Number(rate.toFixed(2)));
+                $(`#discount`).val(0);
+            }else if(itype == 'discount'){
+                damount = parseFloat((discount/100) * amount).toFixed(2);
+                // alert('H'+damount);
+                $(`#damount`).val(damount);
+            }
+            else if(itype == 'damount'){
+                // damount = parseFloat((discount/100) * amount).toFixed(2);
+                // $(`#discount`).val(0);
+            }
+
+
+            let amountwithtax = parseFloat(amount-damount);
+            $(`#amountwithtax`).val(Number(amountwithtax.toFixed(2)));
+        }
+
+        function getBalanceAmount(){
+            let grand_total = $(`#grand_total`).val();
+            let payable_amount = $(`#payable_amount`).val();
+            let paid_amount = $(`#paid_amount`).val();
+            let extra_discount = $(`#extra_discount`).val();
+            payable_amount = grand_total - extra_discount; 
+
+            let rest_amount = parseFloat(paid_amount - payable_amount);
+            $(`#payable_amount`).val(Number(payable_amount.toFixed(2)));
+            $(`#balance`).val(Number(rest_amount.toFixed(2)));
+        }
+
+        function updateGrandTotal(){
+            let sum = 0;
+            document.querySelectorAll('.tableamount').forEach(t => sum += parseFloat(t.value));
+            document.getElementById('payable_amount').value = sum.toFixed(2);
+            document.getElementById('grand_total').value = sum.toFixed(2);
+        }
+    </script>
 
 @endsection
