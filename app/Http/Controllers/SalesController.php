@@ -298,135 +298,182 @@ class SalesController extends Controller
         
     }
 
-    public function updateFormAndStore(Request $request,$id=null){
-        if ($request->isMethod('post')){
-            $vCon = new VoucherController;
-
-            // dd($data[0]['voucher']['master_voucher']);
-            foreach ($data[0]['voucher']['master_voucher'] as $k => $v){
-                // Balance (Amount) Retrun to Heads
-                $vCon->closingBalanceUpdate($v['debit_head'], $v['amount'], '-');
-                $vCon->closingBalanceUpdate($v['credit_head'], $v['amount'], '+');
-            }
-            // dd($data);
-
-            $total_amount = 0;
-            $items=[];
-
-            $ledger=$request->ledger;
-
-            foreach ($request->item as $key => $item) {
-                $item=(object) $item;
-                $sold_quantity = 0;
-                $master_items = MasterItems::select('sales_quantity')
-                        ->where(['voucher_no'=>$voucher_no,'item_id'=>$item->name])
-                        ->first();
-                if($master_items){
-                    $sold_quantity = $master_items->sales_quantity;
-                }
-                // dd($master_items->sales_quantity);
-                $amount = $item->quantity * $item->rate;
-                $damount = 0;
-                if($item->discount > 0){$damount = round(($amount * $item->discount)/100, 2);}
-                $net_amount = $amount - $damount;
-                $total_amount += $net_amount;
-
-                $mData = MasterItems::updateOrCreate(
-                    ['id' => $item->id??0],
-                    [
-                        "voucher_no" => $voucher_no,
-                        "item_id" => $item->name,
-                        "debit_head" => $ledger,
-                        "credit_head" => 8, // Sales Ledger
-                        "sales_quantity" => $item->quantity,
-                        "rate" => $item->rate,
-                        "amount" => $amount,
-                        "discount_percent" => $item->discount,
-                        "discount_amount" => $damount,
-                        "net_amount" => $net_amount,
-                        "date" => $request->date
-                    ]
-                );
-
-                $itemIds[$key]= $mData->id;
-                // Stock Item Adjust
-                StockItem::where('id', $item->name)
-                    ->update([
-                       'quantity' => DB::Raw("quantity - ".($item->quantity-$sold_quantity)),
-                    ]);
-            }
-
-            // Delete extra items of this invoice
-            $ddata= MasterItems::where('voucher_no', $voucher_no)
-                ->whereNotIn('id', $itemIds)
-                // ->pluck('id')
-                ->delete()
-                ;
-
-            // dd($ddata);
-
-            $extra_discount = $request->extra_discount==''?0:$request->extra_discount;
-            $gross_amount = $total_amount - $extra_discount;
-            
-            $sales = Sales::where('id', $id)->update([
-                "debit_head" => $ledger,
-                "discount_amount" => $extra_discount,
-                "total_amount" => $total_amount,
-                "gross_amount" => $gross_amount,
-                "paid_amount" => $request->paid_amount ?? 0,
-                "narration" => $request->narration_remarks,
-                "user_id" => Auth::id(),
-                "date" => $request->date
-            ]);
-            $salesLedger = 3; // Sales Ledger
-            // For Sales Entry
-            $mData =   [
-                "amount" => $gross_amount,
-                "debit_head" => $ledger,
-                "credit_head" => $salesLedger,
-                // "note"   => "For Sales"
-            ];
-            // MasterVoucher Update
-            MasterVoucher::where(['voucher_no'=>$voucher_no,'credit_head'=>$salesLedger])->update($mData);
-
-            $vCon->closingBalanceUpdate($request->ledger, $gross_amount, '+');
-            $vCon->closingBalanceUpdate($salesLedger, $item->amount, '-');
-
-            if ($request->paid_amount > 0) {
-                $drname = 1;//Cash in Hand
-                // $ledger = $request->ledger; // Sales Ledger
-                // Cash Receive For Sales
-                $mData = [
-                    "amount" => $request->paid_amount,
-                    "debit_head" => $drname,
-                    "credit_head" => $ledger,
-                    "note"   => "Cash Received from Party"
-                ];
-
-                MasterVoucher::where(['voucher_no'=>$voucher_no])
-                ->whereNot('credit_head',$salesLedger)
-                ->update($mData);
-
-                $vCon->closingBalanceUpdate($drname, $request->paid_amount, '+');
-                $vCon->closingBalanceUpdate($ledger, $request->paid_amount, '-');
-            }else{
-                // Delete Cash Receive For Sales
-                MasterVoucher::where('voucher_no',$voucher_no)->delete();
-            }
-
-            $vData = [
-                "date" => $request->date,
-                "total_amount" => $gross_amount + $request->paid_amount,
-                "user_id" => Auth::id(),
-                "updated_at"   => date("Y-m-d H:i:s")
-            ];
-            Voucher::where('voucher_no',$voucher_no)->update($vData);
-
-            // return redirect('sales/details/'.$id)->with($msgtype,$msg);
-            return redirect('sales/details/'.$id);
-        }
+    public function updateFormAndStore(Request $request){
+        $request->merge(['id' => $request->route('id')]);
         $data = $this->details($request);
+        // dd($data);
+        // dd($request->all());
+        if ($request->isMethod('post')){
+            DB::beginTransaction();
+            try {
+                $id = $request->id;
+                $ledger=$request->ledger;
 
+                // dd($data);
+                $vCon = new VoucherController;
+                // Balance (Amount) Retrun to Heads
+                $vCon->closingBalanceUpdate($data[0]['debit_head'], $data[0]['gross_amount'], '+');
+                $vCon->closingBalanceUpdate(1, $data[0]['paid_amount'], '-');//1:CashInHand
+
+
+                $previous_balance = Ledger::select('closing_balance')->where('id',$ledger)
+                                ->first()->closing_balance;
+                // dd($previous_balance);
+                $extra_discount = $request->extra_discount==''?0:$request->extra_discount;
+                $sales = Sales::where('id', $id)->update([
+                        // "voucher_no" => $voucher_no,
+                        // "voucher_type" => $this->voucherType,
+                        "debit_head" => $ledger,
+                        "discount_amount" => $extra_discount,
+                        "paid_amount" => $request->paid_amount??0,
+                        "previous_balance" => $request->previous_balance??0,
+                        "narration" => $request->narration_remarks,
+                        "user_id" => Auth::user()->id,
+                        "date" => $request->date
+                    ]);
+
+
+                // dd($request->all());
+                
+                
+                // dd($data);
+
+                $total_amount = 0;
+                $items=[];
+
+                $voucher_no=$data[0]['voucher_no'];
+
+                foreach ($request->item as $key => $item) {
+                    $item=(object) $item;
+                    $sold_quantity = 0;
+                    
+                    // dd($master_items->sales_quantity);
+                    $amount = $item->quantity * $item->rate;
+                    $damount = 0;
+                    // if($item->discount > 0){$damount = round(($amount * $item->discount)/100, 2);}
+                    $net_amount = $amount - $damount;
+                    $total_amount += $net_amount;
+
+                    $mData = MasterItems::updateOrCreate(
+                        ['id' => $item->id??0],
+                        [
+                            "voucher_no" => $voucher_no,
+                            "voucher_type" => 2,//Sales
+                            // "item_id" => $item->name,
+                            "debit_head" => $ledger,
+                            "credit_head" => 8,//Sales Ledger
+                            "sales_quantity" => $item->quantity,
+                            "work_name_id" => $item->work_name,
+                            "work_type_id" => $item->work_type,
+                            "size_id" => $item->size,
+                            "color_id" => $item->color,
+                            "weight_id" => $item->weight,
+                            "paper_id" => $item->paper,
+                            "lamination_id" => $item->lamination,
+                            "note" => $item->note,
+                            "rate" => $item->rate,
+                            "amount" => $amount,
+                            // "discount_percent" => $item->discount,
+                            // "discount_amount" => $damount,
+                            "net_amount" => $net_amount,
+                            "date" => $request->date
+                        ]
+                    );
+
+                    $itemIds[$key]= $mData->id;
+                    // Stock Item Adjust
+                    /*StockItem::where('id', $item->name)
+                        ->update([
+                           'quantity' => DB::Raw("quantity - ".($item->quantity-$sold_quantity)),
+                        ]);*/
+                }
+
+                // Delete extra items of this invoice
+                $ddata= MasterItems::where('voucher_no', $voucher_no)
+                    ->whereNotIn('id', $itemIds)
+                    // ->pluck('id')
+                    ->delete()
+                    ;
+
+                // dd($ddata);
+
+
+                Sales::where('id', $id)->update([
+                       'total_amount' => $total_amount,
+                       'gross_amount' => $total_amount - $extra_discount,
+                    ]);
+
+                
+
+
+
+
+
+                $extra_discount = $request->extra_discount==''?0:$request->extra_discount;
+                $gross_amount = $total_amount - $extra_discount;
+                
+                $salesLedger = 3; // Sales Ledger
+                // For Sales Entry
+                $mData =   [
+                    "amount" => $gross_amount,
+                    "debit_head" => $ledger,
+                    "credit_head" => $salesLedger,
+                    // "note"   => "For Sales"
+                ];
+                // MasterVoucher Update
+                MasterVoucher::where(['voucher_no'=>$voucher_no,'credit_head'=>$salesLedger])->update($mData);
+
+                $vCon->closingBalanceUpdate($ledger, $gross_amount, '+');
+                $vCon->closingBalanceUpdate($salesLedger, $item->amount, '-');
+
+                if ($request->paid_amount > 0) {
+                    $drname = 1;//Cash in Hand
+                    // $ledger = $request->ledger; // Sales Ledger
+                    // Cash Receive For Sales
+                    $mData = [
+                        "amount" => $request->paid_amount,
+                        "debit_head" => $drname,
+                        "credit_head" => $ledger,
+                        "note"   => "Cash Received from Party"
+                    ];
+
+                    MasterVoucher::where(['voucher_no'=>$voucher_no])
+                    ->whereNot('credit_head',$salesLedger)
+                    ->update($mData);
+
+                    $vCon->closingBalanceUpdate($drname, $request->paid_amount, '+');
+                    $vCon->closingBalanceUpdate($ledger, $request->paid_amount, '-');
+                }else{
+                    // Delete Cash Receive For Sales
+                    MasterVoucher::where('voucher_no',$voucher_no)
+                        ->whereNot('credit_head',$salesLedger)->delete();
+                }
+
+                $vData = [
+                    "date" => $request->date,
+                    "total_amount" => $gross_amount + $request->paid_amount,
+                    "user_id" => Auth::id(),
+                    "updated_at"   => date("Y-m-d H:i:s")
+                ];
+                Voucher::where('voucher_no',$voucher_no)->update($vData);
+                DB::commit();
+                // return redirect('sales/list');
+                return redirect()->route('sales-details-pp', ['id' => $id]);
+
+                // return redirect('sales/details/'.$id)->with($msgtype,$msg);
+                return redirect('sales/details/'.$id);
+            }catch (\Exception $e) {
+
+                DB::rollBack();
+
+                \Log::error($e);
+
+                return back()
+                    ->withInput()
+                    ->with('error', $e->getMessage());
+            }
+        }
+        
         // dd($data);
         $WorkTypes = WorkType::orderBy('name','ASC')->get()->toArray();
         $work_names = WorkName::selectRaw("id, name")->where('debit_head',$data[0]['debit_head'])
@@ -898,53 +945,8 @@ class SalesController extends Controller
 
     
     public function detailsPp(Request $request){
-        if(empty($request->id)){exit('ID is Null!');}
-        // dd($request->ln);
-        //  new 
-        $data = Sales::with([
-                'Ledger',
-                'MasterItems.WorkName',
-                'MasterItems.WorkType',
-                'MasterItems.Size',
-                'MasterItems.Color',
-                'MasterItems.Weight',
-                'MasterItems.Paper',
-                'MasterItems.Lamination',
-            ])
-            ->where('id',$request->id)
-            ->get()->toArray();
-            /*->map(function($sales) {
-
-                $MasterItems = $sales->MasterItems;
-
-                return [
-                    'sales_id' => $sales->id,
-                    'voucher_no' => $sales->voucher_no,
-                    'debit_head' => $sales->Ledger->name,
-                    'total_amount' => $sales->total_amount,
-                    'discount_amount' => $sales->discount_amount,
-                    'gross_amount' => $sales->gross_amount,
-                    'paid_amount' => $sales->paid_amount,
-                    'narration' => $sales->narration,
-                    'date' => date('d-m-Y', strtotime($sales->date)),
-                    'sales_items' => $sales->MasterItems != null ? 
-                    $sales->MasterItems->map(function($item) {
-                        return [
-                            'name' => $item->StockItem->name,
-                            'sales_quantity' => $item->sales_quantity,
-                            'unit' => $item->StockItem->Unit->name,
-                            'rate' => $item->rate,
-                            'amount' => $item->amount,
-                            'discount_amount' => $item->discount_amount,
-                            'net_amount' => $item->net_amount
-                        ];
-                    }) : null
-                ];
-            })
-            ->toArray();*/
-            
-            // dd($data);
-        // end
+        $data = $this->details($request);
+        
         if($request->ln == 'bn')
         return view('application.sales.details-pp-bn', compact('data'));
 

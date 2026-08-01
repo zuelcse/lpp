@@ -43,8 +43,8 @@
                                         <label class="col-8 col-sm-3 col-form-label"
                                             for="ledger">Ledger Name</label>
                                         <div class="col-12 col-sm-9">
-                                            <select type="text" class="form-control form-control-sm js-example-basic-single" name="ledger" id="ledger" placeholder="Enter Ledger Type" required="required" disabled onchange="fetchLedgerDetails()">
-                                                <option value="">Select Ledger Type</option>
+                                            <select type="text" class="form-control form-control-sm js-example-basic-single" name="ledger" id="ledger" placeholder="Enter Ledger Type" required="required" readonly="readonly" onchange="fetchLedgerDetails()">
+                                                <!-- <option value="">Select Ledger Type</option> -->
                                                 @foreach ($ledgers as $key => $item)
                                                     <option value="{{ $item->id }}" {{$item->id == $data[0]['debit_head']?'selected':''}}>{{ $item->alias.'-'.$item->name }}</option>
                                                 @endforeach
@@ -78,6 +78,7 @@
                                         
                                         <tr>
                                             <th class="m-0 p-1">
+                                                <input type="hidden" id="id" value="">
                                                 <input id="qtyInput" type="text" class="form-control form-control-sm"
                                                     placeholder="Enter Quantity" autocomplete="off" onkeyup="rateCal('qty')" value="" />
                                             </th>
@@ -146,37 +147,38 @@
                                         @foreach($data[0]['master_items'] as $key=>$items)
                                         <tr>
                                             <td class="m-0 p-1">{{$items['sales_quantity']}} 
-                                                <input name="item[$key][quantity]" class="form-control tableQty" type="hidden" value="{{$items['sales_quantity']}}">
+                                                <input type="hidden" name="item[{{$key}}][id]" value="{{$items['id']}}">
+                                                <input name="item[{{$key}}][quantity]" class="tableQty" type="hidden" value="{{$items['sales_quantity']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['work_name']['name']}} 
-                                                <input type="hidden" name="item[$key][work_name]" value="{{$items['work_name_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][work_name]" value="{{$items['work_name_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['work_type']['name']}} 
-                                                <input type="hidden" name="item[$key][work_type]" value="{{$items['work_type_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][work_type]" value="{{$items['work_type_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['size']['name'] ?? ''}} 
-                                                <input type="hidden" name="item[$key][size]" value="{{$items['size_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][size]" value="{{$items['size_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['color']['name'] ?? ''}} 
-                                                <input type="hidden" name="item[$key][color]" value="{{$items['color_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][color]" value="{{$items['color_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['weight']['name'] ?? ''}} 
-                                                <input type="hidden" name="item[$key][weight]" value="{{$items['weight_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][weight]" value="{{$items['weight_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['paper']['name'] ?? ''}} 
-                                                <input type="hidden" name="item[$key][paper]" value="{{$items['paper_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][paper]" value="{{$items['paper_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['lamination']['name'] ?? ''}} 
-                                                <input type="hidden" name="item[$key][lamination]" value="{{$items['lamination_id']}}">
+                                                <input type="hidden" name="item[{{$key}}][lamination]" value="{{$items['lamination_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['note']}} 
-                                                <input type="hidden" name="item[$key][note]" value="{{$items['note']}}">
+                                                <input type="hidden" name="item[{{$key}}][note]" value="{{$items['note']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['rate']}} 
-                                                <input type="hidden" name="item[$key][rate]" class="form-control tableRate" value="{{$items['rate']}}">
+                                                <input type="hidden" name="item[{{$key}}][rate]" class="form-control tableRate" value="{{$items['rate']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['amount']}} 
-                                                <input type="hidden" name="item[$key][amount]" class="form-control tableamount" value="{{$items['amount']}}">
+                                                <input type="hidden" name="item[{{$key}}][amount]" class="form-control tableamount" value="{{$items['amount']}}">
                                             </td>
                                             <td class="m-0 p-1">
                                                 <button type="button"
@@ -289,6 +291,7 @@
 
             let row = $(this).closest('tr');
 
+            $('#id').val(row.find('input[name*="[id]"]').val());
             $('#qtyInput').val(row.find('input[name*="[quantity]"]').val());
 
             $('#work_name').val(row.find('input[name*="[work_name]"]').val()).trigger('change');
@@ -400,6 +403,7 @@
         let m = "{{$key+1}}";
 
         function addItemBtn(i) {
+            var id = $(`#id`).val();
             var qty = $(`#qtyInput`).val();
 
             var work_name = $(`#work_name`).val();
@@ -436,7 +440,9 @@
 
             let row = `
                 <tr>
-                    <td class="m-0 p-1">${qty} <input name="item[${m}][quantity]" class="form-control tableQty" type="hidden" value="${qty}"></td>
+                    <td class="m-0 p-1">${qty} 
+                        <input type="hidden" name="item[${m}][id]" id="id" value="${id}">
+                        <input name="item[${m}][quantity]" class="form-control tableQty" type="hidden" value="${qty}"></td>
                     <td class="m-0 p-1">${work_name_text} <input type="hidden" name="item[${m}][work_name]" value="${work_name}"></td>
                     <td class="m-0 p-1">${work_type_text} <input type="hidden" name="item[${m}][work_type]" value="${work_type}"></td>
                     <td class="m-0 p-1">${size_text} <input type="hidden" name="item[${m}][size]" value="${size}"></td>

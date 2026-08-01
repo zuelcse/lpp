@@ -232,6 +232,47 @@
             // rateCal('qty');
         });
 
+        $(document).on('click', '.editBtn', async function () {
+
+            let row = $(this).closest('tr');
+
+            $('#id').val(row.find('input[name*="[id]"]').val());
+            $('#qtyInput').val(row.find('input[name*="[quantity]"]').val());
+
+            $('#work_name').val(row.find('input[name*="[work_name]"]').val()).trigger('change');
+            
+
+            let work_type = row.find('input[name*="[work_type]"]').val();
+            $('#work_type').val(work_type).trigger('change');
+
+            // Wait for AJAX to load Size/Color/Weight/Paper/Lamination
+            // await fetchWorkTypeVeriations();
+            let size       = row.find('input[name*="[size]"]').val();
+            let color      = row.find('input[name*="[color]"]').val();
+            let weight     = row.find('input[name*="[weight]"]').val();
+            let paper      = row.find('input[name*="[paper]"]').val();
+            let lamination = row.find('input[name*="[lamination]"]').val();
+
+            setTimeout(function () {
+                $('#size').val(size).trigger('change');
+                $('#color').val(color).trigger('change');
+                $('#weight').val(weight).trigger('change');
+                $('#paper').val(paper).trigger('change');
+                $('#lamination').val(lamination).trigger('change');
+            }, 500);
+
+            $('#note').val(row.find('input[name*="[note]"]').val());
+            $('#rateInput').val(row.find('input[name*="[rate]"]').val());
+            $('#amount').val(row.find('input[name*="[amount]"]').val());
+
+            // Remove current row
+            row.remove();
+
+            updateGrandTotal();
+
+            $('#qtyInput').focus();
+        });
+
 
         async function fetchLedgerDetails() {
             $('#work_name')
@@ -302,168 +343,187 @@
         }
 
 
-    // Add item to table
-    // document.getElementById('addItemBtn').addEventListener('click', function() {
-    let m = 1;
-    function addItemBtn(i) {
-        var qty = $(`#qtyInput`).val();
+        // Add item to table
+        // document.getElementById('addItemBtn').addEventListener('click', function() {
+        let m = 1;
+        function addItemBtn(i) {
+            var qty = $(`#qtyInput`).val();
 
-        var work_name = $(`#work_name`).val();
-        // var work_name_text = $('#work_name option:selected').text();
-        var work_name_text ='';
-        if(work_name) var work_name_text = $('#work_name option:selected').text();
-        
-        var work_type = $(`#work_type`).val();
-        if(!work_type){alert('Select an Work Type');return;}
-        var work_type_text = $('#work_type option:selected').text();
-        
-        var size = $(`#size`).val();
-        var size_text = size?$('#size option:selected').text():'';
-        
-        var color = $(`#color`).val();
-        var color_text = color?$('#color option:selected').text():'';
-        
-        var weight = $(`#weight`).val();
-        var weight_text = weight?$('#weight option:selected').text():'';
-        
-        var paper = $(`#paper`).val();
-        var paper_text = paper?$('#paper option:selected').text():'';
-        
-        var lamination = $(`#lamination`).val();
-        var lamination_text = lamination?$('#lamination option:selected').text():'';
+            var work_name = $(`#work_name`).val();
+            // var work_name_text = $('#work_name option:selected').text();
+            var work_name_text ='';
+            if(work_name) var work_name_text = $('#work_name option:selected').text();
+            
+            var work_type = $(`#work_type`).val();
+            if(!work_type){alert('Select an Work Type');return;}
+            var work_type_text = $('#work_type option:selected').text();
+            
+            var size = $(`#size`).val();
+            var size_text = size?$('#size option:selected').text():'';
+            
+            var color = $(`#color`).val();
+            var color_text = color?$('#color option:selected').text():'';
+            
+            var weight = $(`#weight`).val();
+            var weight_text = weight?$('#weight option:selected').text():'';
+            
+            var paper = $(`#paper`).val();
+            var paper_text = paper?$('#paper option:selected').text():'';
+            
+            var lamination = $(`#lamination`).val();
+            var lamination_text = lamination?$('#lamination option:selected').text():'';
 
-        var note = $(`#note`).val();
-        var rate = $(`#rateInput`).val();
-        // var amount = $(`#amount`).val();
+            var note = $(`#note`).val();
+            var rate = $(`#rateInput`).val();
+            // var amount = $(`#amount`).val();
 
-        let amount = (qty * rate);
-        // alert(note+lamination_text);
-        // return;
+            let amount = (qty * rate);
+            // alert(note+lamination_text);
+            // return;
 
-        let row = `
-            <tr>
-                <td>${qty} <input name="item[${m}][quantity]" class="form-control tableQty" type="hidden" value="${qty}"></td>
-                <td>${work_name_text} <input type="hidden" name="item[${m}][work_name]" value="${work_name}"></td>
-                <td>${work_type_text} <input type="hidden" name="item[${m}][work_type]" value="${work_type}"></td>
-                <td>${size_text} <input type="hidden" name="item[${m}][size]" value="${size}"></td>
-                <td>${color_text} <input type="hidden" name="item[${m}][color]" value="${color}"></td>
-                <td>${weight_text} <input type="hidden" name="item[${m}][weight]" value="${weight}"></td>
-                <td>${paper_text} <input type="hidden" name="item[${m}][paper]" value="${paper}"></td>
-                <td>${lamination_text} <input type="hidden" name="item[${m}][lamination]" value="${lamination}"></td>
-                <td>${note} <input type="hidden" name="item[${m}][note]" value="${note}"></td>
-                <td>${rate} <input type="hidden" name="item[${m}][rate]" class="form-control tableRate" value="${rate}"></td>
-                <td>${amount.toFixed(2)} <input type="hidden" name="item[${m}][amount]" class="form-control tableamount" value="${amount.toFixed(2)}"></td>
-                <td><button class="btn btn-danger btn-sm removeBtn">X</button></td>
-            </tr>`;
+            let row = `
+                <tr>
+                    <td class="m-0 p-1">${qty} <input name="item[${m}][quantity]" class="form-control tableQty" type="hidden" value="${qty}"></td>
+                    <td class="m-0 p-1">${work_name_text} <input type="hidden" name="item[${m}][work_name]" value="${work_name}"></td>
+                    <td class="m-0 p-1">${work_type_text} <input type="hidden" name="item[${m}][work_type]" value="${work_type}"></td>
+                    <td class="m-0 p-1">${size_text} <input type="hidden" name="item[${m}][size]" value="${size}"></td>
+                    <td class="m-0 p-1">${color_text} <input type="hidden" name="item[${m}][color]" value="${color}"></td>
+                    <td class="m-0 p-1">${weight_text} <input type="hidden" name="item[${m}][weight]" value="${weight}"></td>
+                    <td class="m-0 p-1">${paper_text} <input type="hidden" name="item[${m}][paper]" value="${paper}"></td>
+                    <td class="m-0 p-1">${lamination_text} <input type="hidden" name="item[${m}][lamination]" value="${lamination}"></td>
+                    <td class="m-0 p-1">${note} <input type="hidden" name="item[${m}][note]" value="${note}"></td>
+                    <td class="m-0 p-1">${rate} <input type="hidden" name="item[${m}][rate]" class="form-control tableRate" value="${rate}"></td>
+                    <td class="m-0 p-1">${amount.toFixed(2)} <input type="hidden" name="item[${m}][amount]" class="form-control tableamount" value="${amount.toFixed(2)}"></td>
+                    <td class="m-0 p-1">
+                        <button type="button"
+                                class="btn btn-secondary btn-xs editBtn float-start" 
+                                title="Edit" >
+                            <i class="tf-icons bx bxs-edit"></i>
+                        </button>
 
-        document.querySelector('#itemTable tbody').insertAdjacentHTML('beforeend', row);
+                        <button type="button" 
+                                class="btn btn-danger btn-xs removeBtn float-end" 
+                                title="Delete">
+                            <i class="tf-icons bx bxs-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
 
-        updateGrandTotal();
+            document.querySelector('#itemTable tbody').insertAdjacentHTML('beforeend', row);
 
-        // Reset inputs
-        // itemSelect.value = null;
-        let qtyint='';
-        // $('#itemSelect').val(null).trigger('change');
-        if(i==1){
-            // $('#paid_amount').focus();
-            $('#extra_discount').focus();
-        } else{
-            // $('#itemSelect').select2('open');
-            $('#qtyInput').focus();
-            qtyint=1;
-        }
-
-        $(`#qtyInput`).val('');
-        $(`#rateInput`).val(0);
-        $(`#amount`).val(0);
-        $(`#discount`).val(0);
-        $(`#damount`).val(0);
-        $(`#amountwithtax`).val(0);
-
-        // document.getElementById('qtyInput').value = qtyint;
-        // document.getElementById('rateInput').value = '';
-        m++;
-        // document.getElementById('discountInput').value = 0;
-    }
-
-    // Handle delete, qty, discount change
-    /*document.addEventListener('input', function(e){
-        // if(e.target.classList.contains('tableQty') || e.target.classList.contains('tableDiscount')){
-        if(e.target.classList.contains('qtyInput')){
-        alert(e);
-            let row = e.target.closest('tr');
-            recalcRow(row);
             updateGrandTotal();
-        }
-    });*/
 
-    document.addEventListener('click', function(e){
-        if(e.target.classList.contains('removeBtn')){
-            e.target.closest('tr').remove();
-            updateGrandTotal();
-        }
-    });
+            // Reset inputs
+            // itemSelect.value = null;
+            let qtyint='';
+            // $('#itemSelect').val(null).trigger('change');
+            if(i==1){
+                // $('#paid_amount').focus();
+                $('#extra_discount').focus();
+            } else{
+                // $('#itemSelect').select2('open');
+                $('#qtyInput').focus();
+                qtyint=1;
+            }
 
-    function recalcRow(row){
-        // alert(row);
-        let qty = parseFloat(row.querySelector('.tableQty').value);
-        let rate = parseFloat(row.querySelector('.tableRate').value);
-        let discount = parseFloat(row.querySelector('.tableDiscount').value);
-        let total = (qty * rate) - discount;
-        row.querySelector('.tableTotal').value = total.toFixed(2);
-    }
-
-    function rateCal(itype){
-        let qty = $(`#qtyInput`).val();
-        let rate = $(`#rateInput`).val();
-        let discount = $(`#discount`).val();
-        let damount = $(`#damount`).val();
-        let amount = $(`#amount`).val();
-
-        if((itype === 'qty') || (itype === 'rate')){
-            amount = parseFloat(qty * rate);
-            $(`#amount`).val(Number(amount.toFixed(2)));
-            discount=0;
-            damount=0;
+            $(`#qtyInput`).val('');
+            $(`#rateInput`).val(0);
+            $(`#amount`).val(0);
             $(`#discount`).val(0);
             $(`#damount`).val(0);
-        }else if(itype == 'amount'){
-            rate = parseFloat(amount/qty);
-            $(`#rateInput`).val(Number(rate.toFixed(2)));
-            $(`#discount`).val(0);
-        }else if(itype == 'discount'){
-            damount = parseFloat((discount/100) * amount).toFixed(2);
-            // alert('H'+damount);
-            $(`#damount`).val(damount);
-        }
-        else if(itype == 'damount'){
-            // damount = parseFloat((discount/100) * amount).toFixed(2);
-            // $(`#discount`).val(0);
+            $(`#amountwithtax`).val(0);
+
+            // document.getElementById('qtyInput').value = qtyint;
+            // document.getElementById('rateInput').value = '';
+            m++;
+            // document.getElementById('discountInput').value = 0;
         }
 
+        // Handle delete, qty, discount change
+        /*document.addEventListener('input', function(e){
+            // if(e.target.classList.contains('tableQty') || e.target.classList.contains('tableDiscount')){
+            if(e.target.classList.contains('qtyInput')){
+            alert(e);
+                let row = e.target.closest('tr');
+                recalcRow(row);
+                updateGrandTotal();
+            }
+        });*/
 
-        let amountwithtax = parseFloat(amount-damount);
-        $(`#amountwithtax`).val(Number(amountwithtax.toFixed(2)));
-    }
+        // document.addEventListener('click', function(e){
+        //     if(e.target.classList.contains('removeBtn')){
+        //         e.target.closest('tr').remove();
+        //         updateGrandTotal();
+        //     }
+        // });
+        $(document).on('click', '.removeBtn', function (e) {
+            e.preventDefault();
 
-    function getBalanceAmount(){
-        let grand_total = $(`#grand_total`).val();
-        let payable_amount = $(`#payable_amount`).val();
-        let paid_amount = $(`#paid_amount`).val();
-        let extra_discount = $(`#extra_discount`).val();
-        payable_amount = grand_total - extra_discount; 
+            $(this).closest('tr').remove();
 
-        let rest_amount = parseFloat(paid_amount - payable_amount);
-        $(`#payable_amount`).val(Number(payable_amount.toFixed(2)));
-        $(`#balance`).val(Number(rest_amount.toFixed(2)));
-    }
+            updateGrandTotal();
+        });
 
-    function updateGrandTotal(){
-        let sum = 0;
-        document.querySelectorAll('.tableamount').forEach(t => sum += parseFloat(t.value));
-        document.getElementById('payable_amount').value = sum.toFixed(2);
-        document.getElementById('grand_total').value = sum.toFixed(2);
-    }
-</script>
+        function recalcRow(row){
+            // alert(row);
+            let qty = parseFloat(row.querySelector('.tableQty').value);
+            let rate = parseFloat(row.querySelector('.tableRate').value);
+            let discount = parseFloat(row.querySelector('.tableDiscount').value);
+            let total = (qty * rate) - discount;
+            row.querySelector('.tableTotal').value = total.toFixed(2);
+        }
+
+        function rateCal(itype){
+            let qty = $(`#qtyInput`).val();
+            let rate = $(`#rateInput`).val();
+            let discount = $(`#discount`).val();
+            let damount = $(`#damount`).val();
+            let amount = $(`#amount`).val();
+
+            if((itype === 'qty') || (itype === 'rate')){
+                amount = parseFloat(qty * rate);
+                $(`#amount`).val(Number(amount.toFixed(2)));
+                discount=0;
+                damount=0;
+                $(`#discount`).val(0);
+                $(`#damount`).val(0);
+            }else if(itype == 'amount'){
+                rate = parseFloat(amount/qty);
+                $(`#rateInput`).val(Number(rate.toFixed(2)));
+                $(`#discount`).val(0);
+            }else if(itype == 'discount'){
+                damount = parseFloat((discount/100) * amount).toFixed(2);
+                // alert('H'+damount);
+                $(`#damount`).val(damount);
+            }
+            else if(itype == 'damount'){
+                // damount = parseFloat((discount/100) * amount).toFixed(2);
+                // $(`#discount`).val(0);
+            }
+
+
+            let amountwithtax = parseFloat(amount-damount);
+            $(`#amountwithtax`).val(Number(amountwithtax.toFixed(2)));
+        }
+
+        function getBalanceAmount(){
+            let grand_total = $(`#grand_total`).val();
+            let payable_amount = $(`#payable_amount`).val();
+            let paid_amount = $(`#paid_amount`).val();
+            let extra_discount = $(`#extra_discount`).val();
+            payable_amount = grand_total - extra_discount; 
+
+            let rest_amount = parseFloat(paid_amount - payable_amount);
+            $(`#payable_amount`).val(Number(payable_amount.toFixed(2)));
+            $(`#balance`).val(Number(rest_amount.toFixed(2)));
+        }
+
+        function updateGrandTotal(){
+            let sum = 0;
+            document.querySelectorAll('.tableamount').forEach(t => sum += parseFloat(t.value));
+            document.getElementById('payable_amount').value = sum.toFixed(2);
+            document.getElementById('grand_total').value = sum.toFixed(2);
+        }
+    </script>
 
 @endsection
