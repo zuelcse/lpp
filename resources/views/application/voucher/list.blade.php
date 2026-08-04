@@ -113,7 +113,7 @@
                                                         
                                                         <li><a class="dropdown-item" href="{{url('/voucher/details/'.$item->id)}}">Details</a></li>
                                                         @foreach ($r_ids as $r_key => $r_value)
-                                                        <li><a class="dropdown-item" href="{{url('/voucher/money_receipt/'.$r_value)}}">Money Receipt</a></li>
+                                                        <li><a class="dropdown-item" href="{{url('/voucher/money_receipt/'.$r_value)}}">Money Receipt {{$r_key>0??''}}</a></li>
                                                         @endforeach
                                                        
                                                         <li><a class="dropdown-item d-none" href="javascript:void(0);">Edit</a></li>
