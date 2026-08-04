@@ -82,11 +82,16 @@
                                             <td>{{ $item->voucher_no }}</td>
                                             <td>{{ $item->date }}</td>
                                             <td>
+                                                @php $r_ids = [];@endphp
                                                 @foreach($item->MasterVoucher as $key1 => $item1)
                                                 {{ $item1->DebitLedger->name }} |
                                                 {{ $item1->CreditLedger->name }}
                                                 <br>
+                                                @if(in_array($item1->voucher_type,[10,12])) 
+                                                @php $r_ids[]=$item1->id; @endphp
+                                                @endif
                                                 @endforeach
+                                                
                                             </td>
                                             <td>{{ $item->VoucherType->voucher_name }}</td>
                                             <td>{{ $item->total_amount }}</td>
@@ -106,7 +111,10 @@
                                                     <button type="button" class="btn btn-primary dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">Action</button>
                                                     <ul class="dropdown-menu">
                                                         
-                                                            <li><a class="dropdown-item" href="{{url('/voucher/details/'.$item->id)}}">Details</a></li>
+                                                        <li><a class="dropdown-item" href="{{url('/voucher/details/'.$item->id)}}">Details</a></li>
+                                                        @foreach ($r_ids as $r_key => $r_value)
+                                                        <li><a class="dropdown-item" href="{{url('/voucher/money_receipt/'.$r_value)}}">Money Receipt</a></li>
+                                                        @endforeach
                                                        
                                                         <li><a class="dropdown-item d-none" href="javascript:void(0);">Edit</a></li>
                                                         @can('receipt_delete')

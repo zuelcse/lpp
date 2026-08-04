@@ -84,6 +84,12 @@
                                                 <select class="form-control form-control-sm items js-example-basic-single" id="work_name" >
                                                     <option value="">-Work Name-</option>
                                                 </select>
+                                                <div id="otherDiv" style="display:none;">
+                                                    <input type="text" id="newWorkName" class="form-control" placeholder="Enter new work name">
+                                                    <button type="button" id="saveWorkName" class="btn btn-primary mt-2">
+                                                        Save
+                                                    </button>
+                                                </div>
                                             </th>
                                             <th class="m-0 p-1">
                                                 <select class="form-control form-control-sm items js-example-basic-single" id="work_type" onchange ="fetchWorkTypeVeriations()">
@@ -294,6 +300,9 @@
                         `<option value="${id}">${name}</option>`
                     );
                 });
+                $('#work_name').append(
+                    `<option value="others">Others</option>`
+                );
                 $(`#previous_balance`).val(data?.closing_balance);
 
 
@@ -524,6 +533,45 @@
             document.getElementById('payable_amount').value = sum.toFixed(2);
             document.getElementById('grand_total').value = sum.toFixed(2);
         }
+
+        $(document).ready(function () {
+            $('#work_name').change(function () {
+                if ($(this).val() == 'others') {
+                    $('#otherDiv').show();
+                } else {
+                    $('#otherDiv').hide();
+                }
+            });
+
+            $('#saveWorkName').click(function () {
+                let name = $('#newWorkName').val();
+                let ledger = $('#ledger').val();
+
+                if (name == '') {alert('Enter work name');return;}
+
+                $.ajax({
+                    url: "{{url('/setting/work-name/instant')}}",
+                    type: 'POST',
+                    data: {
+                        name: name,
+                        debit_head: ledger,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function (res) {
+                        $('#work_name option[value="others"]').before(
+                            `<option value="${res.id}" selected>${res.name}</option>`
+                        );
+
+                        $('#work_name').val(res.id).trigger('change');
+
+                        $('#otherDiv').hide();
+                        $('#newWorkName').val('');
+
+                    }
+                });
+
+            });
+        });
     </script>
 
 @endsection

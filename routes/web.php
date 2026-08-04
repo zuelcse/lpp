@@ -182,6 +182,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/work-name/create',[SettingController::class,'workNameCreate'])->name('setting-work-name-create');
         Route::match(['get', 'post'],'/work-name/update/{id}',[SettingController::class,'workNameUpdate']);
         Route::post('/work-name/create-action',[SettingController::class,'workNameCreateAction']);
+        Route::post('/work-name/instant',[SettingController::class,'workNameInstant']);
 
 
 
@@ -283,6 +284,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/delete/{id}',[VoucherController::class,'delete'])->name('voucher-delete');
 
         Route::get('/details/{id}',[VoucherController::class,'details'])->name('voucher-details');
+        Route::get('/money_receipt/{id}',[VoucherController::class,'moneyReceipt'])->name('voucher-money_receipt');
         Route::any('/edit/{id}',[VoucherController::class,'voucherEdit'])->name('voucher-edit');
 
         Route::match(['get', 'post'],'/paymentcash-update/{id}',[VoucherController::class,'paymentCashEditFormAndStore'])->name('voucher-paymentcash-update');

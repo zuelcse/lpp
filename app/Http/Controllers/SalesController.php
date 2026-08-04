@@ -173,6 +173,7 @@ class SalesController extends Controller
         if ($request->paid_amount > 0) {
             // Cash Receive For Sales
             $item[] =   [
+                "voucherType" => 10, //10:Cash Receive
                 "amount" => $request->paid_amount,
                 "drname" => 1,//Cash in Hand
                 "crname" => $request->ledger, // Sales Ledger
@@ -185,7 +186,7 @@ class SalesController extends Controller
             'date' => $request->date,
             'voucherType' => $this->voucherType,
             'voucher_no' => $voucher_no,
-            'narration_remarks' => "Cash Received from Party",
+            'narration_remarks' => $request->narration_remarks,
             'item' => $item
         ]);
 

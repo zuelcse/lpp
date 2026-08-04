@@ -68,6 +68,7 @@ class SettingController extends Controller
             [
                 'main_group_id.required' => 'Group is required',
                 'name.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
             ]
         );
 
@@ -123,6 +124,7 @@ class SettingController extends Controller
             [
                 'main_group_id.required' => 'Group is required',
                 'name.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
             ]
         );
 
@@ -217,6 +219,7 @@ class SettingController extends Controller
             [
                 'debit_head.required' => 'Ledger is required',
                 'name.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
             ]
         );
 
@@ -226,6 +229,31 @@ class SettingController extends Controller
         return redirect()
         ->back()
         ->with('success', 'Your message has been sent!');
+    }
+
+    public function workNameInstant(Request $request){
+        $request->validate(
+            [
+                'debit_head' => 'required',
+                'name' => 'required|string|max:255|unique:work_names',
+            ],
+            [
+                'debit_head.required' => 'Ledger is required',
+                'name.required' => 'Name is required',
+                'name.unique' => 'This name already exists.',
+            ]
+        );
+
+        // dd($request->all());
+        $data = WorkName::create([
+            'name' => $request->name,
+            'debit_head' => $request->debit_head
+        ]);
+
+        return response()->json([
+            'id' => $data->id,
+            'name' => $data->name
+        ]);
     }
 
     public function workNameUpdate(Request $request, $id=null){

@@ -12,6 +12,10 @@ class MasterVoucher extends Model
 
     protected $table = 'master_voucher';
 
+    public function Voucher(): hasOne {
+        return  $this->hasOne(Voucher::class,'voucher_no','voucher_no');
+    }
+    
     public function CreditLedger(): hasOne {
         return  $this->hasOne(Ledger::class,'id','credit_head');
     }

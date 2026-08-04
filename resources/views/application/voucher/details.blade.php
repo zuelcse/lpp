@@ -3,7 +3,6 @@
 @section('title', 'Voucher')
 
 @section('content')
-
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
@@ -18,6 +17,7 @@
                         <div class="table-responsive text-nowrap">
                             <table class="table table-bordered" class="font-size: 0.7em">
                                 <tr>
+
                                     <th>VOUCHER NO</th>
                                     <td>{{ $data->voucher_no }}</td>
                                 </tr>

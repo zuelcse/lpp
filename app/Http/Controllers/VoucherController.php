@@ -289,13 +289,15 @@ class VoucherController extends Controller
             $item = (object) $item;
             $total_amount += $item->amount;
 
+            $voucher_type = $item->voucherType??$request->voucherType;
+
             $cheque_no = !isset($item->cheque_no)?NULL:$item->cheque_no;
             $cheque_date = !isset($item->cheque_date)?NULL:$item->cheque_date;
             
             MasterVoucher::create([
                 "date" => $request->date,
                 "voucher_no" => $voucher_no,
-                "voucher_type" => $request->voucherType,
+                "voucher_type" => $voucher_type,
                 "debit_head" => $item->drname,
                 "credit_head" => $item->crname,
                 "amount" => $item->amount,
@@ -387,8 +389,17 @@ class VoucherController extends Controller
         $data= Voucher::with(['MasterVoucher','MasterVoucher.CreditLedger','MasterVoucher.DebitLedger','VoucherType'])
             ->where('id',$request->id)
             ->first();
-            // dd($data); 
+            // dd($data->toArray()); 
         return view('application.voucher.details', compact('data'));
+    }
+
+    public function moneyReceipt(Request $request){
+        if(empty($request->id)){exit('ID is Null!');}
+        $data= MasterVoucher::with(['Voucher','CreditLedger','DebitLedger'])
+            ->where('id',$request->id)
+            ->first();
+            // dd($data); 
+        return view('application.voucher.money_receipt', compact('data'));
     }
 
     public function voucherEdit(Request $request) {
