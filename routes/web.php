@@ -49,7 +49,7 @@ use App\Http\Controllers\VouchertypeController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SalesController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportAccountsController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SettingController;
@@ -292,11 +292,25 @@ Route::group(['middleware' => 'auth'], function () {
         Route::match(['get', 'post'],'/receivecash-update/{id}',[VoucherController::class,'receiveCashEditFormAndStore'])->name('voucher-receivecash-update');
         Route::match(['get', 'post'],'/adjustment-update/{id}',[VoucherController::class,'adjustmentEditFormAndStore'])->name('voucher-adjustment-update');
     });
-    
-    Route::get('/report', [ReportController::class, 'index'])->name('report');
-    Route::post('/report', [ReportController::class, 'report'])->name('report');
 
-    Route::any('/daybook', [ReportController::class, 'dayBook'])->name('dayBook');
+    Route::prefix('report')->group(function(){
+        Route::get('/accounts/ledger-statement', [ReportAccountsController::class, 'ledgerStatement'])->name('report-accounts-ledger-statement');
+        Route::get('/accounts/cashflow-statement', [ReportAccountsController::class, 'cashflowStatement'])->name('report-accounts-cashflow-statement');
+        Route::get('/accounts/maingroup-summary', [ReportAccountsController::class, 'maingroupSummary'])->name('report-accounts-maingroup-summary');
+        Route::get('/accounts/periodic-pl-account', [ReportAccountsController::class, 'periodicPlAccount'])->name('report-accounts-periodic-pl-account');
+        Route::get('/accounts/subgroup-summary', [ReportAccountsController::class, 'subgroupSummary'])->name('report-accounts-subgroup-summary');
+
+
+
+        Route::post('/accounts/ledger-statement-report', [ReportAccountsController::class, 'reportAccounts'])->name('report-accounts-ledger-statement-report');
+
+        Route::get('/r-all', [ReportAccountsController::class, 'rAll'])->name('report-all');
+    });
+    
+    Route::get('/report', [ReportAccountsController::class, 'index'])->name('report');
+    // Route::post('/report', [ReportAccountsController::class, 'report'])->name('report');
+
+    Route::any('/daybook', [ReportAccountsController::class, 'dayBook'])->name('dayBook');
 });
 /* Manage acl Routes */    
 Route::group(['middleware' => 'auth', 'prefix' => 'acl'], function () {  

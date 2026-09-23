@@ -12,7 +12,71 @@
       "permission":"report",
       "name": "Report",
       "icon": "menu-icon tf-icons bx bx-detail",
-      "slug": "report"
+      "slug": ["report"], 
+      "submenu": [
+        {
+          "name": "Accounts Report",
+          "permission":"report",
+          "slug": ["report-accounts-ledger-statement","report-accounts-cashflow-statement","report-accounts-subgroup-summary","report-accounts-maingroup-summary","report-accounts-periodic-pl-account"],
+          "submenu": [
+            {
+              "name": "Ledger Statement",
+              "url": "report/accounts/ledger-statement",
+              "permission":"report",
+              "slug": "report-accounts-ledger-statement"
+            },
+            {
+              "name": "Cashflow Statement",
+              "url": "report/accounts/cashflow-statement",
+              "permission":"report",
+              "slug": "report-accounts-cashflow-statement"
+            },
+            {
+              "name": "Sub Group Summary",
+              "url": "report/accounts/subgroup-summary",
+              "permission":"report",
+              "slug": "report-accounts-subgroup-summary"
+            },
+            {
+              "name": "Main Group Summary",
+              "url": "report/accounts/maingroup-summary",
+              "permission":"report",
+              "slug": "report-accounts-maingroup-summary"
+            },
+            {
+              "name": "Periodic P/L Account",
+              "url": "report/accounts/periodic-pl-account",
+              "permission":"report",
+              "slug": "report-accounts-periodic-pl-account"
+            }
+          ]
+        },
+        {
+          "name": "Sales Report",
+          "permission":"report",
+          "slug": ["report-sales"],
+          "submenu": [
+            {
+              "name": "Sales Statement",
+              "url": "/accounts/ledger-statement",
+              "permission":"report",
+              "slug": "report-accounts-ledger-statement"
+            },
+            {
+              "name": "Test Report2",
+              "url": "/accounts/cashflow-statement",
+              "permission":"report",
+              "slug": "report-accounts-cashflow-statement"
+            }
+          ]
+        },
+        {
+          "name": "All",
+          "url": "/report/r-all",
+          "permission":"report",
+          "slug": "report-all"
+        }
+      ]
     },
     {
       "name": "Purchase",
@@ -121,6 +185,26 @@
           "url": "voucher/list",
           "permission":"basic",
           "slug": "voucher-list"
+        }
+      ]
+    },
+    {
+      "name": "MRR",
+      "permission":"mrr",
+      "icon": "menu-icon tf-icons bx bx-cog me-2",
+      "slug": ["setting-item","stockitem-create"],
+      "submenu": [
+        {
+          "url": "stockitem/create",
+          "permission":"setting",
+          "name": "Entry",
+          "slug": "stockitem-create"
+        },
+        {
+          "url": "setting/item",
+          "permission":"setting",
+          "name": "List",
+          "slug": "setting-item"
         }
       ]
     },

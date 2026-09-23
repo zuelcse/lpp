@@ -27,6 +27,10 @@ if (!function_exists('numberToBanglaWords')) {
             95 => 'পঁচানব্বই', 96 => 'ছিয়ানব্বই', 97 => 'সাতানব্বই', 98 => 'আটানব্বই', 99 => 'নিরানব্বই'
         ];
 
+        if ($number < 0) {
+            return 'মাইনাস ' . numberToBanglaWords(abs($number));
+        }
+
         if ($number < 100) {
             return $bn[$number];
         } elseif ($number < 1000) {

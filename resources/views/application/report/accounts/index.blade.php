@@ -27,7 +27,7 @@
                                         Report Filters
                                     </legend>
                                     <div class="row">
-                                        <div class="col-md-6 col-sm-12">
+                                        <!-- <div class="col-md-6 col-sm-12">
                                             <div class="row">
                                                 <label class="col-3 col-sm-3 col-form-label" for="group">Group</label>
                                                 <div class="col-9 col-sm-9">
@@ -39,8 +39,8 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-12">
+                                        </div> -->
+                                        <!-- <div class="col-md-6 col-sm-12">
                                             <div class="row">
                                                 <label class="col-3 col-sm-3 col-form-label" for="sub_group">Sub Group</label>
                                                 <div class="col-9 col-sm-9">
@@ -50,6 +50,17 @@
                                                             <option value="{{ $data->id }}">{{ $data->alias .'-'. $data->name }}</option>
                                                         @endforeach
                                                     </select>
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                        <div class="col-md-6 col-sm-12">
+                                            <div class="row">
+                                                <div class="col-5 col-sm-5">
+                                                    <input type="date" class="form-control form-control-sm" value="{{ optional($info)['s_date']?$info['s_date']:date('Y-m-d') }}" id="s_date" name="s_date" placeholder="Enter Date" />
+                                                </div>
+                                                <div class="col-2 col-sm-2 col-form-label">To</div>
+                                                <div class="col-5 col-sm-5">
+                                                    <input type="date" class="form-control form-control-sm" value="{{ optional($info)['e_date']?$info['e_date']:date('Y-m-d') }}" id="e_date" name="e_date" placeholder="Enter Date" />
                                                 </div>
                                             </div>
                                         </div>
@@ -66,7 +77,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 col-sm-12">
+                                        <!-- <div class="col-md-6 col-sm-12">
                                             <div class="row">
                                                 <label class="col-4 col-sm-3 col-form-label" for="itemgroup">Item Group</label>
                                                 <div class="col-8 col-sm-9">
@@ -78,8 +89,8 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6 col-sm-12">
+                                        </div> -->
+                                        <!-- <div class="col-md-6 col-sm-12">
                                             <div class="row">
                                                 <label class="col-3 col-sm-3 col-form-label" for="item">Item</label>
                                                 <div class="col-9 col-sm-9">
@@ -91,19 +102,8 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> -->
                                         
-                                        <div class="col-md-6 col-sm-12">
-                                            <div class="row">
-                                                <div class="col-5 col-sm-5">
-                                                    <input type="date" class="form-control form-control-sm" value="{{ optional($info)['s_date']?$info['s_date']:date('Y-m-d') }}" id="s_date" name="s_date" placeholder="Enter Date" />
-                                                </div>
-                                                <div class="col-2 col-sm-2 col-form-label">To</div>
-                                                <div class="col-5 col-sm-5">
-                                                    <input type="date" class="form-control form-control-sm" value="{{ optional($info)['e_date']?$info['e_date']:date('Y-m-d') }}" id="e_date" name="e_date" placeholder="Enter Date" />
-                                                </div>
-                                            </div>
-                                        </div>
                                         
                                     </div>
                                 </fieldset>

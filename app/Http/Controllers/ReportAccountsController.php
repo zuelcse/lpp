@@ -17,9 +17,23 @@ use App\Models\Unit;
 use PDF;
 use Auth;
 
-class ReportController extends Controller
+class ReportAccountsController extends Controller
 {
-    public function index() {
+    // All
+    public function rAll() {
+        $group= Group::get();
+        $subgroups= Subgroups::get();
+        $ledger= Ledger::get();
+        $itemgroups= Category::get();
+        $items= StockItem::get();
+        $AllVoucher=[];
+        $info=[];
+        $pdf=0;
+        // dd('RR');
+        return view('application.report.index',compact('group','subgroups','ledger','itemgroups','items','AllVoucher','info','pdf'));
+    }
+
+    public function ledgerStatement() {
         // $ledger= LedgerPermission::with('Ledger')->where('user_id', Auth::user()->id)->get();
         $group= Group::get();
         $subgroups= Subgroups::get();
@@ -30,10 +44,56 @@ class ReportController extends Controller
         $AllVoucher=[];
         $info=[];
         $pdf=0;
-        return view('application.report.index',compact('group','subgroups','ledger','itemgroups','items','AllVoucher','info','pdf'));
+        return view('application.report.accounts.ledger_statement_index',compact('group','subgroups','ledger','itemgroups','items','AllVoucher','info','pdf'));
+    }
+
+    public function cashflowStatement() {
+        // $group= Group::get();
+        // $subgroups= Subgroups::get();
+        // $ledger= Ledger::get();
+        // $itemgroups= Category::get();
+        // $items= StockItem::get();
+        // dd($ledger);
+        $AllVoucher=[];
+        $info=[];
+        $pdf=0;
+        return view('application.report.accounts.cashflow_statement_index',compact('info','pdf'));
+    }
+
+    public function maingroupSummary() {
+        $group= Group::get();
+        // $subgroups= Subgroups::get();
+        // $ledger= Ledger::get();
+        // $itemgroups= Category::get();
+        // $items= StockItem::get();
+        // dd($ledger);
+        $AllVoucher=[];
+        $info=[];
+        $pdf=0;
+        return view('application.report.accounts.maingroup_summary_index',compact('group','info','pdf'));
+    }
+
+    public function periodicPlAccount() {
+        $AllVoucher=[];
+        $info=[];
+        $pdf=0;
+        return view('application.report.accounts.periodic_pl_account_index',compact('info','pdf'));
+    }
+
+    public function subgroupSummary() {
+        $group= Group::get();
+        $subgroups= Subgroups::get();
+        // $ledger= Ledger::get();
+        // $itemgroups= Category::get();
+        // $items= StockItem::get();
+        // dd($ledger);
+        $AllVoucher=[];
+        $info=[];
+        $pdf=0;
+        return view('application.report.accounts.subgroup_summary_index',compact('group','subgroups','info','pdf'));
     }
     
-    public function report(Request $request) {
+    public function reportAccounts(Request $request) {
         $info=$request->all();
         // dd($info);
         $s_date=!empty($request->s_date)?$request->s_date:NULL;
@@ -44,14 +104,14 @@ class ReportController extends Controller
             $data['ledger'] = Ledger::select('name')->where('id',$info['ledger'])->first();
             $data['info'] = $info;
             $data['data'] = $this->cashFlow($info);
-            return view('application.report.cash_flow',compact('data'));
+            return view('application.report.accounts.cash_flow',compact('data'));
         }elseif($request->report_name == 'ledger_statement') {
             // $info->ledger = 1;
             $data['ledger'] = Ledger::select('name')->where('id',$info['ledger'])->first();
             $data['info'] = $info;
             $data['data'] = $this->cashFlow($info);
             // dd($data);
-            return view('application.report.ledger_statement',compact('data','info'));
+            return view('application.report.accounts.ledger_statement_report',compact('data','info'));
         }elseif($request->report_name == 'stock_position') {
             $data = $this->stockPosition($info);
             return view('application.report.stock_position',compact('data','info'));
@@ -71,13 +131,18 @@ class ReportController extends Controller
             $data['info'] = $info;
             $data['data'] = $this->subGroupStatement($info);
             // dd($data);
-            return view('application.report.sub_group_statement',compact('data'));
+            return view('application.report.accounts.sub_group_statement',compact('data'));
         }elseif($request->report_name == 'main_group_statement') {
             $data['group'] = Group::select('alias','name')->where('id',$info['group'])->first();
             $data['info'] = $info;
             $data['data'] = $this->mainGroupStatement($info);
             // dd($data);
-            return view('application.report.main_group_statement',compact('data'));
+            return view('application.report.accounts.main_group_statement',compact('data'));
+        }elseif($request->report_name == 'periodic_pl_account') {
+            $data['info'] = $info;
+            $data['data'] = $this->periodicPlAccountReport($info);
+            // dd($data);
+            return view('application.report.accounts.periodic_pl_account',compact('data'));
         }else{
             exit('This report is coming soon!');
         }
@@ -459,6 +524,72 @@ class ReportController extends Controller
 
         // dd($data);
         return $data;
+    }
+
+    public function periodicPlAccountReport($info){
+        $from   = $info['s_date'];
+        $to     = $info['e_date'];
+        // return null;
+        $groupIds = [33,35,47,49,50,51,52,53];
+        $groups = Group::with([
+            'Subgroups.Ledger' => function ($query) use ($from, $to) {
+
+                $query->with([
+                    'DebitMasterVouchersInRange' => function ($q) use ($from, $to) {
+                        $q->whereBetween('date', [$from, $to])
+                          // ->where('status', 1)
+                          ;
+                    },
+
+                    'CreditMasterVouchersInRange' => function ($q) use ($from, $to) {
+                        $q->whereBetween('date', [$from, $to])
+                          // ->where('status', 1)
+                          ;
+                    }
+                ]);
+
+            }
+        ])
+        ->whereIn("id",$groupIds)
+        ->get();
+
+        $groupSummary = $groups->map(function ($group) {
+
+            $debit = 0;
+            $credit = 0;
+
+            foreach ($group->Subgroups as $subgroup) {
+
+                foreach ($subgroup->Ledger as $ledger) {
+
+                    $debit += $ledger->DebitMasterVouchersInRange
+                        ->sum('amount');
+
+                    $credit += $ledger->CreditMasterVouchersInRange
+                        ->sum('amount');
+                }
+            }
+
+            return [
+                'group_id'    => $group->id,
+                'group_name'  => $group->name,
+                'debit'       => $debit,
+                'credit'      => $credit,
+                'balance'     => $debit - $credit,
+            ];
+        })->keyBy('group_id');
+        // dd($groupSummary);
+
+        /*$data['voucherData'] = MasterVoucher::select("voucher_type", DB::raw('SUM(amount) AS amount'))
+                        ->whereBetween('date', [$from, $to])
+                        ->whereIn('voucher_type', $vTypes)
+                        ->groupBy("voucher_type")
+                        ->pluck("amount","voucher_type")
+                        ->toArray();*/
+        // dd($data);
+        
+        // dd($data);
+        return $groupSummary;
     }
 
     public function partySales_251015($info){

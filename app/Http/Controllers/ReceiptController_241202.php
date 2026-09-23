@@ -18,7 +18,7 @@ use File;
 use Storage;
 use Auth;
 
-class ReceiptController extends Controller
+class ReportAccountsController extends Controller
 {
     public function newReceipt() {
         $ledger= LedgerPermission::with('Ledger')->where('user_id', Auth::user()->id)->get();

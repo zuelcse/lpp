@@ -150,7 +150,7 @@
                                                 <input type="hidden" name="item[{{$key}}][id]" value="{{$items['id']}}">
                                                 <input name="item[{{$key}}][quantity]" class="tableQty" type="hidden" value="{{$items['sales_quantity']}}">
                                             </td>
-                                            <td class="m-0 p-1">{{$items['work_name']['name']}} 
+                                            <td class="m-0 p-1">{{$items['work_name']['name']??''}}
                                                 <input type="hidden" name="item[{{$key}}][work_name]" value="{{$items['work_name_id']}}">
                                             </td>
                                             <td class="m-0 p-1">{{$items['work_type']['name']}} 
