@@ -41,7 +41,7 @@
                                     <td>{{ $stockItem->firstItem() + $key }}</td>
                                     <td>{{$allGroup[$item->category]}}</td>
                                     <td>{{$allManufacturer[$item->manufacturer]}}</td>
-                                    <td>{{$item->alias??''}}|{{$item->name}}</td>
+                                    <td>{{$item->id??''}}-{{$item->name}}</td>
                                     <td>{{$allUnits[$item->unit]}}</td>
                                     <td>{{$item->salesRate}}</td>
                                     <!-- <td>{{$item->purchaseRate}}</td> -->

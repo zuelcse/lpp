@@ -113,14 +113,13 @@ class ReportAccountsController extends Controller
             // dd($data);
             return view('application.report.accounts.ledger_statement_report',compact('data','info'));
         }elseif($request->report_name == 'stock_position') {
-            $data = $this->stockPosition($info);
-            return view('application.report.stock_position',compact('data','info'));
+            return app(\App\Http\Controllers\ReportSalesController::class)->stockPositionReport($request);
         }elseif($request->report_name == 'sales_statement') {
-            $data = $this->salesStatement($info);
-            return view('application.report.sales_statement',compact('data','info'));
-        }elseif($request->report_name == 'item_history_') {
-            $data = $this->itemHistory($info);
-            return view('application.report.item_history',compact('data','info'));
+            return app(\App\Http\Controllers\ReportSalesController::class)->salesStatementReport($request);
+        }elseif($request->report_name == 'item_history' || $request->report_name == 'item_history_') {
+            return app(\App\Http\Controllers\ReportSalesController::class)->stockItemHistoryReport($request);
+        }elseif($request->report_name == 'purchase_statement') {
+            return app(\App\Http\Controllers\ReportSalesController::class)->purchaseStatementReport($request);
         }elseif($request->report_name == 'party_sales') {
             $data['ledger'] = Ledger::select('name')->where('id',$info['ledger'])->first();
             $data['info'] = $info;
@@ -143,6 +142,12 @@ class ReportAccountsController extends Controller
             $data['data'] = $this->periodicPlAccountReport($info);
             // dd($data);
             return view('application.report.accounts.periodic_pl_account',compact('data'));
+        }elseif($request->report_name == 'balance_sheet') {
+            $data['info'] = $info;
+            $data['data'] = $this->balanceSheetReport($info);
+            return view('application.report.accounts.balance_sheet',compact('data'));
+        }elseif($request->report_name == 'raw_materials_ledger') {
+            return app(\App\Http\Controllers\ReportMaterialsController::class)->rawMaterialsLedgerReport($request);
         }else{
             exit('This report is coming soon!');
         }
@@ -590,6 +595,211 @@ class ReportAccountsController extends Controller
         
         // dd($data);
         return $groupSummary;
+    }
+
+    public function balanceSheetReport($info) {
+        $to = !empty($info['e_date']) ? $info['e_date'] : (!empty($info['s_date']) ? $info['s_date'] : date('Y-m-d'));
+
+        $vouchersDr = DB::table('master_voucher')
+            ->join('ledgers', 'master_voucher.debit_head', '=', 'ledgers.id')
+            ->where('master_voucher.date', '<=', $to)
+            ->groupBy('ledgers.main_group_id')
+            ->select('ledgers.main_group_id', DB::raw('SUM(master_voucher.amount) as total_debit'))
+            ->pluck('total_debit', 'main_group_id')
+            ->toArray();
+
+        $vouchersCr = DB::table('master_voucher')
+            ->join('ledgers', 'master_voucher.credit_head', '=', 'ledgers.id')
+            ->where('master_voucher.date', '<=', $to)
+            ->groupBy('ledgers.main_group_id')
+            ->select('ledgers.main_group_id', DB::raw('SUM(master_voucher.amount) as total_credit'))
+            ->pluck('total_credit', 'main_group_id')
+            ->toArray();
+
+        $getDrNet = function($groupIds) use ($vouchersDr, $vouchersCr) {
+            if (!is_array($groupIds)) $groupIds = [$groupIds];
+            $sum = 0;
+            foreach ($groupIds as $gid) {
+                $dr = (float)($vouchersDr[$gid] ?? 0);
+                $cr = (float)($vouchersCr[$gid] ?? 0);
+                $sum += ($dr - $cr);
+            }
+            return $sum;
+        };
+
+        $getCrNet = function($groupIds) use ($vouchersDr, $vouchersCr) {
+            if (!is_array($groupIds)) $groupIds = [$groupIds];
+            $sum = 0;
+            foreach ($groupIds as $gid) {
+                $dr = (float)($vouchersDr[$gid] ?? 0);
+                $cr = (float)($vouchersCr[$gid] ?? 0);
+                $sum += ($cr - $dr);
+            }
+            return $sum;
+        };
+
+        // 1. Non-Current Assets
+        $tangibleFixedAssets = $getDrNet([13, 15]) - $getCrNet(14); // Fixed Assets (13) + WIP (15) - Acc Dep (14)
+        $deferredExpenses = $getDrNet(16);
+        $investment = $getDrNet(17);
+        $totalNonCurrentAssets = $tangibleFixedAssets + $deferredExpenses + $investment;
+
+        // 2. Inter Company Current A/C
+        $interCompany = $getDrNet(32); // Note 9A (if Dr: positive, if Cr: negative)
+
+        // 3. Current Assets
+        // Split Debtors (25) into Trade Debtors (>0) and Advance Against Sales (<0)
+        $debtorDrVouchers = DB::table('master_voucher')
+            ->join('ledgers', 'master_voucher.debit_head', '=', 'ledgers.id')
+            ->where('ledgers.main_group_id', 25)
+            ->where('master_voucher.date', '<=', $to)
+            ->groupBy('master_voucher.debit_head')
+            ->select('master_voucher.debit_head as ledger_id', DB::raw('SUM(master_voucher.amount) as dr_amount'))
+            ->pluck('dr_amount', 'ledger_id')
+            ->toArray();
+
+        $debtorCrVouchers = DB::table('master_voucher')
+            ->join('ledgers', 'master_voucher.credit_head', '=', 'ledgers.id')
+            ->where('ledgers.main_group_id', 25)
+            ->where('master_voucher.date', '<=', $to)
+            ->groupBy('master_voucher.credit_head')
+            ->select('master_voucher.credit_head as ledger_id', DB::raw('SUM(master_voucher.amount) as cr_amount'))
+            ->pluck('cr_amount', 'ledger_id')
+            ->toArray();
+
+        $allDebtorIds = array_unique(array_merge(array_keys($debtorDrVouchers), array_keys($debtorCrVouchers)));
+        $tradeDebtors = 0;
+        $advanceAgainstSales = 0;
+        foreach ($allDebtorIds as $lid) {
+            $bal = ($debtorDrVouchers[$lid] ?? 0) - ($debtorCrVouchers[$lid] ?? 0);
+            if ($bal > 0) {
+                $tradeDebtors += $bal;
+            } elseif ($bal < 0) {
+                $advanceAgainstSales += abs($bal);
+            }
+        }
+
+        // Split Creditors (7) into Creditors (>0) and Advance to Suppliers (<0)
+        $creditorDrVouchers = DB::table('master_voucher')
+            ->join('ledgers', 'master_voucher.debit_head', '=', 'ledgers.id')
+            ->where('ledgers.main_group_id', 7)
+            ->where('master_voucher.date', '<=', $to)
+            ->groupBy('master_voucher.debit_head')
+            ->select('master_voucher.debit_head as ledger_id', DB::raw('SUM(master_voucher.amount) as dr_amount'))
+            ->pluck('dr_amount', 'ledger_id')
+            ->toArray();
+
+        $creditorCrVouchers = DB::table('master_voucher')
+            ->join('ledgers', 'master_voucher.credit_head', '=', 'ledgers.id')
+            ->where('ledgers.main_group_id', 7)
+            ->where('master_voucher.date', '<=', $to)
+            ->groupBy('master_voucher.credit_head')
+            ->select('master_voucher.credit_head as ledger_id', DB::raw('SUM(master_voucher.amount) as cr_amount'))
+            ->pluck('cr_amount', 'ledger_id')
+            ->toArray();
+
+        $allCreditorIds = array_unique(array_merge(array_keys($creditorDrVouchers), array_keys($creditorCrVouchers)));
+        $creditors = 0;
+        $advanceToSuppliers = 0;
+        foreach ($allCreditorIds as $lid) {
+            $bal = ($creditorCrVouchers[$lid] ?? 0) - ($creditorDrVouchers[$lid] ?? 0);
+            if ($bal > 0) {
+                $creditors += $bal;
+            } elseif ($bal < 0) {
+                $advanceToSuppliers += abs($bal);
+            }
+        }
+
+        $inventories = $getDrNet([18, 19, 20, 21, 22, 23, 24]);
+        $accountsReceivable = $getDrNet(26);
+        $advanceDepositsPrepayments = $getDrNet([27, 28, 29]) + $advanceToSuppliers;
+        $cashCashEquivalents = $getDrNet([30, 31]);
+
+        $totalCurrentAssets = $inventories + $tradeDebtors + $accountsReceivable + $advanceDepositsPrepayments + $cashCashEquivalents;
+
+        // 4. Current Liabilities & Provisions
+        $loans = $getCrNet(5);
+        $interestPayable = $getCrNet(6);
+        $accruedExpenses = $getCrNet(8);
+        $liabilitiesOtherFinance = $getCrNet(9);
+        $liabilitiesCapitalExpenditure = $getCrNet(10);
+        $provisionTaxation = $getCrNet(11);
+        $dividendPayable = $getCrNet(12);
+
+        $totalCurrentLiabilities = $loans + $interestPayable + $creditors + $accruedExpenses + $advanceAgainstSales 
+            + $liabilitiesOtherFinance + $liabilitiesCapitalExpenditure + $provisionTaxation + $dividendPayable;
+
+        // 5. Net Current Assets
+        $netCurrentAssets = $totalCurrentAssets - $totalCurrentLiabilities;
+
+        // 6. Deferred Liabilities
+        $deferredLiabilities = $getCrNet(4);
+
+        // 7. TOTAL (ASSET SIDE)
+        $totalAssetSide = $totalNonCurrentAssets + $interCompany + $netCurrentAssets - $deferredLiabilities;
+
+        // 8. FINANCED BY
+        $shareCapital = $getCrNet(1);
+
+        // Cumulative Net Profit up to $to:
+        // Income groups: 33, 34, 39, 40, 41, 42, 53
+        $totalIncome = $getCrNet([33, 34, 39, 40, 41, 42, 53]);
+        // Expense groups: 35, 36, 37, 38, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52
+        $totalExpense = $getDrNet([35, 36, 37, 38, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52]);
+        $netProfit = $totalIncome - $totalExpense;
+
+        $reservesSurplus = $getCrNet(2);
+        $retainedEarnings = $reservesSurplus + $netProfit;
+
+        $totalShareholdersEquity = $shareCapital + $retainedEarnings;
+
+        $longTermLoan = $getCrNet(3);
+        $totalNonCurrentLiabilities = $longTermLoan;
+
+        $totalLiabilitySide = $totalShareholdersEquity + $totalNonCurrentLiabilities;
+
+        return [
+            'non_current_assets' => [
+                'tangible_fixed_assets' => $tangibleFixedAssets,
+                'deferred_expenses' => $deferredExpenses,
+                'investment' => $investment,
+                'total' => $totalNonCurrentAssets,
+            ],
+            'inter_company_current_ac' => $interCompany,
+            'current_assets' => [
+                'inventories' => $inventories,
+                'trade_debtors' => $tradeDebtors,
+                'accounts_receivable' => $accountsReceivable,
+                'advance_deposits_prepayments' => $advanceDepositsPrepayments,
+                'cash_cash_equivalents' => $cashCashEquivalents,
+                'total' => $totalCurrentAssets,
+            ],
+            'current_liabilities' => [
+                'loans' => $loans,
+                'interest_payable' => $interestPayable,
+                'creditors' => $creditors,
+                'accrued_expenses' => $accruedExpenses,
+                'advance_against_sales' => $advanceAgainstSales,
+                'liabilities_other_finance' => $liabilitiesOtherFinance,
+                'liabilities_capital_expenditure' => $liabilitiesCapitalExpenditure,
+                'provision_taxation' => $provisionTaxation,
+                'dividend_payable' => $dividendPayable,
+                'total' => $totalCurrentLiabilities,
+            ],
+            'net_current_assets' => $netCurrentAssets,
+            'deferred_liabilities' => $deferredLiabilities,
+            'total_asset_side' => $totalAssetSide,
+            'shareholders_equity' => [
+                'share_capital' => $shareCapital,
+                'retained_earnings' => $retainedEarnings,
+                'total' => $totalShareholdersEquity,
+            ],
+            'non_current_liabilities' => [
+                'long_term_loan' => $longTermLoan,
+                'total' => $totalNonCurrentLiabilities,
+            ],
+            'total_liability_side' => $totalLiabilitySide,
+        ];
     }
 
     public function partySales_251015($info){

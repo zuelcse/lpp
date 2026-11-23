@@ -39,7 +39,7 @@
 @endif
 
 <div>
-  @if ($errors->any())
+  @if (isset($errors) && $errors->any())
       <div class="alert alert-danger">
           <ul>
               @foreach ($errors->all() as $error)

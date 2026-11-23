@@ -49,6 +49,9 @@
                                         <div class="col-md-3 mb-1">
                                             <button type="submit" name="report_name" value="periodic_pl_account" class="col-12 btn btn-xs btn-primary x-small">Periodic Profit & Loss Account</button>
                                         </div>
+                                        <div class="col-md-3 mb-1">
+                                            <button type="submit" name="report_name" value="balance_sheet" class="col-12 btn btn-xs btn-primary x-small">Balance Sheet</button>
+                                        </div>
                                     </div>
                                 </fieldset>
                                 </div>

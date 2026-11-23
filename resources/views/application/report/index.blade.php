@@ -202,7 +202,7 @@
                                             <button type="submit" name="report_name" value="comming_soon" class="col-12 btn btn-xs btn-primary">DD</button>
                                         </div>
                                         <div class="col-md-3 mb-1">
-                                            <button type="submit" name="report_name" value="comming_soon" class="col-12 btn btn-xs btn-primary">Purchase Statement</button>
+                                            <button type="submit" name="report_name" value="purchase_statement" class="col-12 btn btn-xs btn-primary">Purchase Statement</button>
                                         </div>
                                         <div class="col-md-3 mb-1">
                                             <button type="submit" name="report_name" value="comming_soon" class="col-12 btn btn-xs btn-primary">Sales Item History</button>
@@ -248,6 +248,9 @@
             return false; // stops submission
         }else if (report === 'party_sales' && !ledger) {
             alert('⚠️ Please select the Ledger!');
+            return false; // stops submission
+        }else if (report === 'item_history' && !item) {
+            alert('⚠️ Please select the Item!');
             return false; // stops submission
         }
 

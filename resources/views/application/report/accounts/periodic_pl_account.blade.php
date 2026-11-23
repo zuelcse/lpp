@@ -199,7 +199,7 @@
             border-bottom: 1px dotted #999;
         }
 
-        .calculation-table .amount {
+        .amount {
             text-align: right;
         }
 
@@ -347,6 +347,20 @@
         for the Period of {{ date('d/m/Y', strtotime($data["info"]["s_date"])) }} to {{$data["info"]["e_date"]}}
     </div>
 
+    <?php 
+        $wip_opening=0.00;
+        $rawmaterials=$data["data"][35]["debit"];
+        $packingmaterials=0.00;
+        $chemicalmaterials=0.00;
+        $storesspares=0.00;
+        $foverheads = $data["data"][47]["debit"];
+        $depreciation = 0.00;
+        $wip_closing = 0.00;
+        $finishedgoodsopening = 0.00;
+        $finishedgoodsclosing = 0.00;
+        $cogs=$wip_opening+$rawmaterials+$packingmaterials+$chemicalmaterials+$storesspares+$foverheads+$depreciation+$wip_closing+$finishedgoodsopening+$finishedgoodsclosing;
+    ?>
+
 
     <!-- =====================================
          PROFIT & LOSS TABLE
@@ -370,51 +384,39 @@
             <!-- SALES -->
 
             <tr class="item-row">
-                <td>
-                    Sales
-                </td>
+                <td>Sales</td>
 
                 <td class="text-center">
-                    1
-                </td>
+                    1</td>
 
                 <td class="amount">
-                    {{$_1 = $data["data"][33]["credit"]}}
-                </td>
+                    {{$_1 = $data["data"][33]["credit"]}}</td>
             </tr>
 
 
             <!-- COGS -->
 
             <tr class="item-row">
-                <td>
-                    Cost of Goods Sold
-                </td>
+                <td>Cost of Goods Sold</td>
 
                 <td class="text-center">
-                    2
-                </td>
+                    2</td>
 
                 <td class="amount">
-                    {{$_2 = $data["data"][35]["credit"] + $data["data"][35]["credit"]}}
-                </td>
+                    {{$_2 = $cogs}}</td>
             </tr>
 
 
             <!-- GROSS PROFIT -->
 
             <tr class="gross-profit">
-                <td>
-                    GROSS PROFIT/(LOSS)
-                </td>
+                <td>GROSS PROFIT/(LOSS)</td>
 
                 <td class="text-center">
-                    1-2
-                </td>
+                    1-2</td>
 
                 <td class="amount">
-                    {{$_12 = $_1 - $_2}}
-                </td>
+                    {{$_12 = $_1 - $_2}}</td>
             </tr>
 
 
@@ -425,201 +427,103 @@
             @endphp 
 
             <tr class="section-row">
-                <td>
-                    OPERATING EXPENSES
-                </td>
-
-                <td class="text-center">
-                    3+4
-                </td>
-
-                <td class="amount">
-                    ({{$_34 = $_3+$_4}})
-                </td>
+                <td>OPERATING EXPENSES</td>
+                <td class="text-center">3+4</td>
+                <td class="amount">({{$_34 = $_3+$_4}})</td>
             </tr>
 
 
             <!-- ADMINISTRATIVE EXPENSE -->
 
             <tr class="item-row">
-                <td class="indent">
-                    Administrative Expenses
-                </td>
-
-                <td class="text-center">
-                    3
-                </td>
-
-                <td class="amount">
-                    {{$_3}}
-                </td>
+                <td class="indent">Administrative Expenses</td>
+                <td class="text-center">3</td>
+                <td class="amount">{{$_3}}</td>
             </tr>
 
 
             <!-- SELLING EXPENSE -->
 
             <tr class="item-row">
-                <td class="indent">
-                    Selling &amp; Distribution Expenses
-                </td>
-
-                <td class="text-center">
-                    4
-                </td>
-
-                <td class="amount">
-                    {{$_4}}
-                </td>
+                <td class="indent">Selling &amp; Distribution Expenses</td>
+                <td class="text-center">4</td>
+                <td class="amount">{{$_4}}</td>
             </tr>
 
 
             <!-- OPERATING PROFIT -->
 
             <tr class="result-row">
-                <td>
-                    PROFIT/(LOSS) FROM OPERATIONS
-                </td>
-
-                <td class="text-center">
-                    (1-2)-(3+4)
-                </td>
-
-                <td class="amount">
-                    {{$_1234 = ($_12)-($_34)}}
-                </td>
+                <td>PROFIT/(LOSS) FROM OPERATIONS</td>
+                <td class="text-center">(1-2)-(3+4)</td>
+                <td class="amount">{{$_1234 = ($_12)-($_34)}}</td>
             </tr>
-
 
             <!-- FINANCIAL EXPENSE -->
 
             <tr class="item-row">
-                <td>
-                    Financial Expenses
-                </td>
-
-                <td class="text-center">
-                    5
-                </td>
-
+                <td>Financial Expenses</td>
+                <td class="text-center">5</td>
                 <td class="amount">
-                    {{$_5 = $data["data"][51]["credit"] + $data["data"][52]["credit"]}}
+                    {{$_5 = $data["data"][51]["debit"] + $data["data"][52]["debit"]}}
                 </td>
             </tr>
-
 
             <!-- PROFIT AFTER FINANCIAL EXPENSE -->
 
             <tr class="sub-result">
-                <td>
-                    PROFIT/(LOSS)
-                </td>
-
-                <td class="text-center">
-                    (1-2)-(3+4)-5
-                </td>
-
-                <td class="amount">
-                    {{$_12345 = $_1234 - $_5}}
-                </td>
+                <td>PROFIT/(LOSS)</td>
+                <td class="text-center">(1-2)-(3+4)-5</td>
+                <td class="amount">{{$_12345 = $_1234 - $_5}}</td>
             </tr>
-
 
             <!-- NON OPERATING INCOME -->
 
             <tr class="item-row">
-                <td>
-                    Non-Operating Income
-                </td>
-
-                <td class="text-center">
-                    6
-                </td>
-
-                <td class="amount">
-                    {{$_6 = $data["data"][53]["credit"]}}
-                </td>
+                <td>Non-Operating Income</td>
+                <td class="text-center">6</td>
+                <td class="amount">{{$_6 = $data["data"][53]["credit"]}}</td>
             </tr>
-
 
             <!-- PROFIT BEFORE WPP -->
 
             <tr class="sub-result">
-                <td>
-                    PROFIT/(LOSS)
-                </td>
-
-                <td class="text-center">
-                    (1-2)-(3+4)-5+6
-                </td>
-
-                <td class="amount">
-                    {{$_123456 = $_12345 + $_6}}
-                </td>
+                <td>PROFIT/(LOSS)</td>
+                <td class="text-center">(1-2)-(3+4)-5+6</td>
+                <td class="amount">{{$_123456 = $_12345 + $_6}}</td>
             </tr>
-
 
             <!-- WPP -->
 
             <tr class="item-row">
-                <td>
-                    Contribution to WPP &amp; WF
-                </td>
-
-                <td class="text-center">
-                    7
-                </td>
-
-                <td class="amount">
-                    {{$_7 = 0}}
-                </td>
+                <td>Contribution to WPP &amp; WF</td>
+                <td class="text-center">7</td>
+                <td class="amount">{{$_7 = 0}}</td>
             </tr>
-
 
             <!-- NET PROFIT BEFORE TAX -->
 
             <tr class="result-row">
-                <td>
-                    NET PROFIT/(LOSS) BEFORE TAX
-                </td>
-
-                <td class="text-center">
-                    (1-2)-(3+4)-5+6-7
-                </td>
-
+                <td>NET PROFIT/(LOSS) BEFORE TAX</td>
+                <td class="text-center">(1-2)-(3+4)-5+6-7</td>
                 <td class="amount">
                     {{$_1234567 = $_123456 - $_7}}
                 </td>
             </tr>
 
-
             <!-- TAX -->
 
             <tr class="item-row">
-                <td>
-                    Provision for Income Tax
-                </td>
-
-                <td class="text-center">
-                    8
-                </td>
-
-                <td class="amount">
-                    {{$_8 = 0}}
-                </td>
+                <td>Provision for Income Tax</td>
+                <td class="text-center">8</td>
+                <td class="amount">{{$_8 = 0}}</td>
             </tr>
-
 
             <!-- NET PROFIT AFTER TAX -->
 
             <tr class="net-profit">
-                <td>
-                    NET PROFIT/(LOSS) AFTER TAX
-                </td>
-
-                <td class="text-center">
-                    (1-2)-(3+4)-5+6-7-8
-                </td>
-
+                <td>NET PROFIT/(LOSS) AFTER TAX</td>
+                <td class="text-center">(1-2)-(3+4)-5+6-7-8</td>
                 <td class="amount">
                     {{$_12345678 = $_1234567 - $_8}}
                 </td>
@@ -647,219 +551,112 @@
 
         <thead>
             <tr>
-                <th>
-                    Particulars
-                </th>
-
-                <th class="text-center">
-                    Schedules/Notes
-                </th>
-
-                <th class="text-right">
-                    Amount (Tk)
-                </th>
+                <th>Particulars</th>
+                <th class="text-center">Schedules/Notes</th>
+                <th class="text-right">Amount (Tk)</th>
             </tr>
         </thead>
 
         <tbody>
 
             <!-- WIP OPENING -->
+            
 
             <tr>
-                <td>
-                    Work-In-Process (Opening)
-                </td>
-
-                <td class="text-center">
-                    mg 22
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Work-In-Process (Opening)</td>
+                <td class="text-center">mg 22</td>
+                <td class="amount">{{$wip_opening}}</td>
             </tr>
-
 
             <!-- RAW MATERIAL -->
 
             <tr>
-                <td>
-                    Raw Materials Consumption Calculation
-                </td>
-
-                <td class="text-center">
-                </td>
-
-                <td class="amount">
-                    84,22,445.17
-                </td>
+                <td>Raw Materials Consumption Calculation</td>
+                <td class="text-center"></td>
+                <td class="amount">{{$rawmaterials}}</td>
             </tr>
-
 
             <!-- PACKING -->
 
             <tr>
-                <td>
-                    Packing Material Consumption Calculation
-                </td>
-
-                <td class="text-center">
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Packing Material Consumption Calculation</td>
+                <td class="text-center"></td>
+                <td class="amount">{{$packingmaterials}}</td>
             </tr>
-
 
             <!-- CHEMICAL -->
 
             <tr>
-                <td>
-                    Chemical Consumption Calculation
-                </td>
-
-                <td class="text-center">
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Chemical Consumption Calculation</td>
+                <td class="text-center"></td>
+                <td class="amount">{{$chemicalmaterials}}</td>
             </tr>
-
 
             <!-- STORES -->
 
             <tr>
-                <td>
-                    Stores &amp; Spares Consumption Calculation
-                </td>
-
-                <td class="text-center">
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Stores &amp; Spares Consumption Calculation</td>
+                <td class="text-center"></td>
+                <td class="amount">{{$storesspares}}</td>
             </tr>
-
 
             <!-- FACTORY OVERHEAD -->
 
             <tr>
-                <td>
-                    Factory Overheads
-                </td>
-
-                <td class="text-center">
-                    mg(47,4)
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Factory Overheads</td>
+                <td class="text-center">mg(47,4)</td>
+                <td class="amount">{{$foverheads}}</td>
             </tr>
-
 
             <!-- DEPRECIATION -->
 
             <tr>
-                <td>
-                    Depreciation
-                </td>
-
-                <td class="text-center">
-                    mg(48,4)
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Depreciation</td>
+                <td class="text-center">mg(48,4)</td>
+                <td class="amount"> {{$depreciation}}</td>
             </tr>
-
 
             <!-- CLOSING WIP -->
 
             <tr>
-                <td>
-                    Less : Work-In-Process (Closing)
-                </td>
-
-                <td class="text-center">
-                    Input-1
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Less : Work-In-Process (Closing)</td>
+                <td class="text-center">Input-1</td>
+                <td class="amount">{{$wip_closing}}</td>
             </tr>
 
 
             <!-- COST OF GOODS MANUFACTURED -->
 
             <tr class="total">
-                <td>
-                    COST OF GOODS MANUFACTURED
-                </td>
-
-                <td class="text-center">
-                    Calculation
-                </td>
-
+                <td>COST OF GOODS MANUFACTURED</td>
+                <td class="text-center">Calculation</td>
                 <td class="amount">
-                    84,22,445.17
+                    {{$cogsTot1=$wip_opening+$rawmaterials+$packingmaterials+$chemicalmaterials+$storesspares+$foverheads+$depreciation+$wip_closing}}
                 </td>
             </tr>
-
 
             <!-- FINISHED GOODS OPENING -->
 
             <tr>
-                <td>
-                    Finished Goods (Opening)
-                </td>
-
-                <td class="text-center">
-                    mg(23,4)
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Finished Goods (Opening)</td>
+                <td class="text-center"> mg(23,4) </td>
+                <td class="amount">{{$finishedgoodsopening}}</td>
             </tr>
-
 
             <!-- FINISHED GOODS CLOSING -->
 
             <tr>
-                <td>
-                    Less : Finished Goods (Closing)
-                </td>
-
-                <td class="text-center">
-                    Input-2
-                </td>
-
-                <td class="amount">
-                    0.00
-                </td>
+                <td>Less : Finished Goods (Closing)</td>
+                <td class="text-center">Input-2</td>
+                <td class="amount">{{$finishedgoodsclosing}}</td>
             </tr>
-
 
             <!-- COST OF GOODS SOLD -->
 
             <tr class="final-total">
-                <td>
-                    COST OF GOODS SOLD
-                </td>
-
-                <td class="text-center">
-                    Calculation
-                </td>
-
-                <td class="amount">
-                    84,22,445.17
-                </td>
+                <td>COST OF GOODS SOLD</td>
+                <td class="text-center">Calculation</td>
+                <td class="amount">{{$cogs}}</td>
             </tr>
 
         </tbody>

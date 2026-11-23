@@ -1,9 +1,9 @@
 <?php
   // Variables
   return [
-    "creatorName" => "Trading Solution",
+    "creatorName" => "Trading Solutions",
     "creatorUrl" => "#",
-    "templateName" => "Trading Solution",
+    "templateName" => "Trading Solutions",
     "templateSuffix" => "Bootstrap 5 HTML Laravel Admin Template",
     "templateVersion" => "1.1.0",
     "templateFree" => true,

@@ -54,19 +54,53 @@
         {
           "name": "Sales Report",
           "permission":"report",
-          "slug": ["report-sales"],
+          "slug": [
+            "report-sales-stock-position",
+            "report-sales-stock-position-report",
+            "report-sales-stock-item-history",
+            "report-sales-stock-item-history-report",
+            "report-sales-sales-statement",
+            "report-sales-sales-statement-report",
+            "report-sales-purchase-statement",
+            "report-sales-purchase-statement-report"
+          ],
           "submenu": [
             {
-              "name": "Sales Statement",
-              "url": "/accounts/ledger-statement",
+              "name": "Stock Position",
+              "url": "report/sales/stock-position",
               "permission":"report",
-              "slug": "report-accounts-ledger-statement"
+              "slug": "report-sales-stock-position"
             },
             {
-              "name": "Test Report2",
-              "url": "/accounts/cashflow-statement",
+              "name": "Sales Item History",
+              "url": "report/sales/stock-item-history",
               "permission":"report",
-              "slug": "report-accounts-cashflow-statement"
+              "slug": "report-sales-stock-item-history"
+            },
+            {
+              "name": "Sales Statement",
+              "url": "report/sales/sales-statement",
+              "permission":"report",
+              "slug": "report-sales-sales-statement"
+            },
+            {
+              "name": "Purchase Statement",
+              "url": "report/sales/purchase-statement",
+              "permission":"report",
+              "slug": "report-sales-purchase-statement"
+            }
+          ]
+        },
+        {
+          "name": "Materials Report",
+          "permission":"report",
+          "slug": ["report-materials-raw-materials-ledger","report-materials-raw-materials-ledger-report"],
+          "submenu": [
+            {
+              "name": "Raw Materials Ledger",
+              "url": "/report/materials/raw-materials-ledger",
+              "permission":"report",
+              "slug": "report-materials-raw-materials-ledger"
             }
           ]
         },
@@ -105,7 +139,7 @@
       ]
     },
     {
-      "name": "Memo",
+      "name": "Sales",
       "permission":"sales",
       "icon": "menu-icon tf-icons bx bx-collection",
       "slug": ["sales-new","sales-return","sales-list","sales-update","sales-invoice-pp"], 
@@ -117,8 +151,14 @@
           "slug": "sales-invoice-pp"
         },
         {
+          "url": "/sales/new-desktop",
+          "permission":"basic",
+          "name": "New Invoice Desktop",
+          "slug": "sales-new-desktop"
+        },
+        {
           "url": "/sales/new",
-          "permission":"mobile_entry",
+          "permission":"basic",
           "name": "New Invoice",
           "slug": "sales-new"
         },
@@ -189,22 +229,124 @@
       ]
     },
     {
-      "name": "MRR",
-      "permission":"mrr",
-      "icon": "menu-icon tf-icons bx bx-cog me-2",
-      "slug": ["setting-item","stockitem-create"],
+      "name": "Inventory",
+      "permission":"inventory",
+      "icon": "menu-icon tf-icons bx bx-detail",
+      "slug": "inventory", 
       "submenu": [
         {
-          "url": "stockitem/create",
-          "permission":"setting",
-          "name": "Entry",
-          "slug": "stockitem-create"
+          "name": "MRR",
+          "permission":"basic",
+          "slug": ["inventory-mrr-entry","inventory-mrr-create","inventory-mrr-list","inventory-mrr-edit","inventory-mrr-details"],
+          "submenu": [
+            {
+              "name": "Entry",
+              "url": "/mrr/entry",
+              "permission":"basic",
+              "slug": "inventory-mrr-entry"
+            },
+            {
+              "name": "List",
+              "url": "/mrr/list",
+              "permission":"basic",
+              "slug": "inventory-mrr-list"
+            }
+          ]
         },
         {
-          "url": "setting/item",
-          "permission":"setting",
-          "name": "List",
-          "slug": "setting-item"
+          "name": "Issue to Production",
+          "permission":"basic",
+          "slug": ["inventory-issue-production-entry","inventory-issue-production-create","inventory-issue-production-list","inventory-issue-production-edit","inventory-issue-production-details"],
+          "submenu": [
+            {
+              "name": "Entry",
+              "url": "/issue-production/entry",
+              "permission":"basic",
+              "slug": "inventory-issue-production-entry"
+            },
+            {
+              "name": "List",
+              "url": "/issue-production/list",
+              "permission":"basic",
+              "slug": "inventory-issue-production-list"
+            }
+          ]
+        },
+        {
+          "name": "Production",
+          "permission":"basic",
+          "slug": ["inventory-production-entry","inventory-production-create","inventory-production-list","inventory-production-edit","inventory-production-details"],
+          "submenu": [
+            {
+              "name": "Entry",
+              "url": "/production/entry",
+              "permission":"basic",
+              "slug": "inventory-production-entry"
+            },
+            {
+              "name": "List",
+              "url": "/production/list",
+              "permission":"basic",
+              "slug": "inventory-production-list"
+            }
+          ]
+        },
+        {
+          "name": "Raw Material",
+          "permission":"basic",
+          "slug": ["inventory-material"],
+          "submenu": [
+            {
+              "name": "Items",
+              "permission":"basic",
+              "slug": ["inventory-material-item-create","inventory-material-item-lists","inventory-material-item-edit","inventory-material-item-update"],
+              "submenu": [
+                {
+                  "name": "Item Entry",
+                  "url": "/material/item-create",
+                  "permission":"basic",
+                  "slug": "inventory-material-item-create"
+                },
+                {
+                  "name": "Item List",
+                  "url": "/material/item-lists",
+                  "permission":"basic",
+                  "slug": "inventory-material-item-lists"
+                }
+              ]
+            },
+            {
+              "name": "Groups",
+              "url": "/material/groups",
+              "permission":"basic",
+              "slug": "inventory-material-groups"
+            },
+            {
+              "name": "Raw Materials Ledger",
+              "url": "/report/materials/raw-materials-ledger",
+              "permission":"basic",
+              "slug": "inventory-material-raw-materials-ledger"
+            }
+          ]
+        },
+        {
+          "name": "BOM",
+          "permission":"basic",
+          "slug": ["inventory-bom"],
+          "submenu": [
+            {
+              "name": "Entry",
+              "url": "/voucher/receive-cash",
+              "permission":"basic",
+              "slug": "inventory-bom-entry"
+            },
+            {
+              "name": "List",
+              "url": "/voucher/receive-bank",
+              "permission":"basic",
+              "slug": "inventory-bom-list"
+            }
+          ]
         }
       ]
     },

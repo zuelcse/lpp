@@ -67,42 +67,44 @@
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="row mb-3">
-                                    <div class="col-6">
-                                        <div class="row">
-                                            <label class="col-sm-3 col-form-label" for="region_id">Region</label>
-                                            <div class="col-sm-9">
-                                                <select type="text" id="region_id" class="form-control js-example-basic-single" name="region_id" placeholder="Enter Region" aria-label="Enter Region" aria-describedby="region_id" onchange="areas()">
-                                                    <option value="">--Select Region--</option>
-                                                    @foreach($regions as $key => $item)
-                                                    <option value="{{$key}}" {{ old('region_id') == $key ? 'selected' : '' }}>{{$item}}</option>
-                                                    @endforeach
-                                                </select>
+                                <div id="territory_location">
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <label class="col-sm-3 col-form-label" for="region_id">Region</label>
+                                                <div class="col-sm-9">
+                                                    <select type="text" id="region_id" class="form-control js-example-basic-single" name="region_id" placeholder="Enter Region" aria-label="Enter Region" aria-describedby="region_id" onchange="areas()">
+                                                        <option value="">--Select Region--</option>
+                                                        @foreach($regions as $key => $item)
+                                                        <option value="{{$key}}" {{ old('region_id') == $key ? 'selected' : '' }}>{{$item}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <label class="col-sm-3 col-form-label" for="area_id">Area</label>
+                                                <div class="col-sm-9">
+                                                    <select type="text" id="area_id" class="form-control js-example-basic-single" name="area_id" placeholder="Enter Area" aria-label="Enter Area" aria-describedby="area_id" onchange="terriitorys()">
+                                                        <option value="">--Select Area--</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="row">
+                                                <label class="col-sm-3 col-form-label" for="territory_id">Territory</label>
+                                                <div class="col-sm-9">
+                                                    <select type="text" id="territory_id" class="form-control js-example-basic-single" name="territory_id" placeholder="Enter Territory" aria-label="Enter Territory" aria-describedby="territory_id">
+                                                        <option value="">--Select Territory--</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="row">
-                                            <label class="col-sm-3 col-form-label" for="area_id">Area</label>
-                                            <div class="col-sm-9">
-                                                <select type="text" id="area_id" class="form-control js-example-basic-single" name="area_id" placeholder="Enter Area" aria-label="Enter Area" aria-describedby="area_id" onchange="terriitorys()">
-                                                    <option value="">--Select Area--</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="row">
-                                            <label class="col-sm-3 col-form-label" for="territory_id">Territory</label>
-                                            <div class="col-sm-9">
-                                                <select type="text" id="territory_id" class="form-control js-example-basic-single" name="territory_id" placeholder="Enter Territory" aria-label="Enter Territory" aria-describedby="territory_id">
-                                                    <option value="">--Select Territory--</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <hr>
                                 </div>
-                                <hr>
                                 <div class="row mb-3">
                                     <div class="col-6">
                                         <div class="row">
@@ -258,7 +260,7 @@
 $(document).ready(function(){
     // Country -> State
     $('#main_group_id').on('change', function(){
-        alert('HI');
+        // alert('HI');
         let main_group_id = $(this).val();
         $('#sub_group_id').empty().append('<option value="">-- Select Sub Group --</option>');
 
@@ -268,6 +270,11 @@ $(document).ready(function(){
                     $('#sub_group_id').append(`<option value="${id}">${name}</option>`);
                 });
             });
+            if(main_group_id == 25){
+                $('#territory_location').show();
+            } else {
+                $('#territory_location').hide();
+            }
         }
     });
 

@@ -19,6 +19,10 @@ class StockItem extends Model
         return  $this->hasOne(Unit::class,'id','unit');
     }
 
+    public function unitDetail(): hasOne {
+        return  $this->hasOne(Unit::class,'id','unit');
+    }
+
     public function MasterItems(){
         return $this->hasMany(MasterItems::class, 'item_id', 'id');
     }

@@ -16,7 +16,7 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <form method="POST" target="_blank" action="{{route('report-accounts-ledger-statement')}}" enctype="multipart/form-data" onsubmit="return reportRestriction()">
+                <form method="POST" target="_blank" action="{{route('report-accounts-ledger-statement-report')}}" enctype="multipart/form-data" onsubmit="return reportRestriction()">
                     @csrf
                 <div class="card-body">
                     <div class="row">

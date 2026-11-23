@@ -56,6 +56,12 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Auth\ACLController;
 use App\Http\Controllers\Auth\UserController;
 use App\Http\Controllers\WorkTypeController;
+use App\Http\Controllers\RawMaterialsController;
+use App\Http\Controllers\MrrController;
+use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\IssueProductionController;
+use App\Http\Controllers\ReportMaterialsController;
+use App\Http\Controllers\ReportSalesController;
 // Main Page Route
 
 // authentication
@@ -210,6 +216,49 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/master_lamination',[SettingController::class,'masterLamination'])->name('setting-master-lamination');
         Route::post('/master_lamination/create',[SettingController::class,'masterLaminationCreate'])->name('setting-master-lamination-create');
     });
+
+    Route::prefix('mrr')->group(function(){
+        Route::get('/entry', [MrrController::class, 'create'])->name('inventory-mrr-entry');
+        Route::get('/create', [MrrController::class, 'create'])->name('inventory-mrr-create');
+        Route::post('/store', [MrrController::class, 'store'])->name('inventory-mrr-store');
+        Route::get('/list', [MrrController::class, 'index'])->name('inventory-mrr-list');
+        Route::get('/details/{id}', [MrrController::class, 'show'])->name('inventory-mrr-details');
+        Route::match(['get', 'post'], '/edit/{id}', [MrrController::class, 'edit'])->name('inventory-mrr-edit');
+        Route::post('/update/{id}', [MrrController::class, 'update'])->name('inventory-mrr-update');
+        Route::get('/delete/{id}', [MrrController::class, 'destroy'])->name('inventory-mrr-delete');
+    });
+
+    Route::prefix('issue-production')->group(function(){
+        Route::get('/entry', [IssueProductionController::class, 'create'])->name('inventory-issue-production-entry');
+        Route::get('/create', [IssueProductionController::class, 'create'])->name('inventory-issue-production-create');
+        Route::post('/store', [IssueProductionController::class, 'store'])->name('inventory-issue-production-store');
+        Route::get('/list', [IssueProductionController::class, 'index'])->name('inventory-issue-production-list');
+        Route::get('/details/{id}', [IssueProductionController::class, 'show'])->name('inventory-issue-production-details');
+        Route::match(['get', 'post'], '/edit/{id}', [IssueProductionController::class, 'edit'])->name('inventory-issue-production-edit');
+        Route::post('/update/{id}', [IssueProductionController::class, 'update'])->name('inventory-issue-production-update');
+        Route::get('/delete/{id}', [IssueProductionController::class, 'destroy'])->name('inventory-issue-production-delete');
+    });
+
+    Route::prefix('production')->group(function(){
+        Route::get('/entry', [ProductionController::class, 'create'])->name('inventory-production-entry');
+        Route::get('/create', [ProductionController::class, 'create'])->name('inventory-production-create');
+        Route::post('/store', [ProductionController::class, 'store'])->name('inventory-production-store');
+        Route::get('/list', [ProductionController::class, 'index'])->name('inventory-production-list');
+        Route::get('/details/{id}', [ProductionController::class, 'show'])->name('inventory-production-details');
+        Route::match(['get', 'post'], '/edit/{id}', [ProductionController::class, 'edit'])->name('inventory-production-edit');
+        Route::post('/update/{id}', [ProductionController::class, 'update'])->name('inventory-production-update');
+        Route::get('/delete/{id}', [ProductionController::class, 'destroy'])->name('inventory-production-delete');
+    });
+
+    Route::prefix('material')->group(function(){
+        Route::get('/groups',[RawMaterialsController::class,'materialGroups'])->name('inventory-material-groups');
+
+        Route::match(['get', 'post'], '/item-create',[RawMaterialsController::class,'itemCreate'])->name('inventory-material-item-create');
+        Route::match(['get', 'post'], '/item-edit/{id}',[RawMaterialsController::class,'itemEdit'])->name('inventory-material-item-edit');
+        Route::match(['get', 'post'], '/item-update/{id}',[RawMaterialsController::class,'itemEdit'])->name('inventory-material-item-update');
+        Route::get('/item-lists',[RawMaterialsController::class,'itemList'])->name('inventory-material-item-lists');
+        Route::get('/raw-materials-ledger', [ReportMaterialsController::class, 'rawMaterialsLedger'])->name('inventory-material-raw-materials-ledger');
+    });
     
     Route::prefix('ledger')->group(function(){
         Route::get('/',[LedgerController::class,'index'])->name('ledger');
@@ -303,6 +352,24 @@ Route::group(['middleware' => 'auth'], function () {
 
 
         Route::post('/accounts/ledger-statement-report', [ReportAccountsController::class, 'reportAccounts'])->name('report-accounts-ledger-statement-report');
+
+        Route::get('/materials/raw-materials-ledger', [ReportMaterialsController::class, 'rawMaterialsLedger'])->name('report-materials-raw-materials-ledger');
+        Route::match(['get', 'post'], '/materials/raw-materials-ledger-report', [ReportMaterialsController::class, 'rawMaterialsLedgerReport'])->name('report-materials-raw-materials-ledger-report');
+        Route::get('/materials/items/{group_id?}', [ReportMaterialsController::class, 'getMaterialItems'])->name('report-materials-items-ajax');
+
+        // Sales Reports
+        Route::get('/sales/stock-position', [ReportSalesController::class, 'stockPosition'])->name('report-sales-stock-position');
+        Route::match(['get', 'post'], '/sales/stock-position-report', [ReportSalesController::class, 'stockPositionReport'])->name('report-sales-stock-position-report');
+
+        Route::get('/sales/stock-item-history', [ReportSalesController::class, 'stockItemHistory'])->name('report-sales-stock-item-history');
+        Route::match(['get', 'post'], '/sales/stock-item-history-report', [ReportSalesController::class, 'stockItemHistoryReport'])->name('report-sales-stock-item-history-report');
+
+        Route::get('/sales/sales-statement', [ReportSalesController::class, 'salesStatement'])->name('report-sales-sales-statement');
+        Route::match(['get', 'post'], '/sales/sales-statement-report', [ReportSalesController::class, 'salesStatementReport'])->name('report-sales-sales-statement-report');
+
+        Route::get('/sales/purchase-statement', [ReportSalesController::class, 'purchaseStatement'])->name('report-sales-purchase-statement');
+        Route::match(['get', 'post'], '/sales/purchase-statement-report', [ReportSalesController::class, 'purchaseStatementReport'])->name('report-sales-purchase-statement-report');
+        Route::get('/sales/items/{category_id?}', [ReportSalesController::class, 'getItemsByCategory'])->name('report-sales-items-ajax');
 
         Route::get('/r-all', [ReportAccountsController::class, 'rAll'])->name('report-all');
     });
