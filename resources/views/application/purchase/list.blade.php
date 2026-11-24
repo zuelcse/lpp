@@ -59,7 +59,7 @@
                                 </div>
                             </div>
                         </form>
-                        <div class="table-responsive text-nowrap" style="min-height: 500px;">
+                        <div class="table-responsive text-nowrap" style="min-height: 260px;">
                             <table class="table table-bordered" class="font-size: 0.7em">
                                 <thead>
                                     <tr>

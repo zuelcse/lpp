@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class MenuServiceProvider extends ServiceProvider
@@ -19,10 +21,14 @@ class MenuServiceProvider extends ServiceProvider
    */
   public function boot(): void
   {
-    $verticalMenuJson = file_get_contents(base_path('resources/menu/verticalMenu.json'));
-    $verticalMenuData = json_decode($verticalMenuJson);
+    View::composer(['layouts.sections.menu.verticalMenu'], function ($view) {
+      $menuPath = base_path('resources/menu/verticalMenu.json');
+      $cacheKey = 'vertical_menu_data_' . @filemtime($menuPath);
+      $verticalMenuData = Cache::remember($cacheKey, 86400, function () use ($menuPath) {
+        return json_decode(file_get_contents($menuPath));
+      });
 
-    // Share all menuData to all the views
-    \View::share('menuData', [$verticalMenuData]);
+      $view->with('menuData', [$verticalMenuData]);
+    });
   }
 }

@@ -190,6 +190,20 @@
             padding-top: 5px;
         }
 
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 767.98px) {
+            body { padding: 8px; }
+            .report-container { padding: 12px; }
+            .no-print-bar, .report-subtitle-row, .item-info-bar { flex-wrap: wrap; gap: 8px; }
+            .report-footer { flex-wrap: wrap; gap: 16px; }
+            .signature-box { width: 45%; min-width: 120px; }
+        }
+
         @media print {
             body {
                 background: #fff;
@@ -270,6 +284,7 @@
     <div class="pill-divider"></div>
 
     <!-- Main Table -->
+    <div class="table-scroll">
     <table class="data-table">
         <thead>
             <tr>
@@ -353,6 +368,7 @@
             </tr>
         </tfoot>
     </table>
+    </div>
 
     <div class="report-footer no-print">
         <div class="signature-box">Prepared By</div>

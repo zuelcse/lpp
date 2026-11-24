@@ -53,7 +53,7 @@
                                     <th colspan="2">Attachment
                                     <br>
                                     @if($data->attachment)
-                                        <iframe style="width:500px; height:auto;" src="/storage/{{$data->attachment}}" title="description"></iframe>
+                                        <iframe style="width:100%; max-width:500px; min-height:300px;" src="/storage/{{$data->attachment}}" title="description"></iframe>
                                     @endif
                                     </th>
                                 </tr>

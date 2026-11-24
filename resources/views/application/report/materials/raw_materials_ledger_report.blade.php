@@ -188,6 +188,18 @@
             white-space: nowrap;
         }
 
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        @media (max-width: 767.98px) {
+            body { padding: 8px; }
+            .report-container { padding: 12px; }
+            .no-print-bar, .report-subtitle-row { flex-wrap: wrap; gap: 8px; }
+        }
+
         /* Print Optimization */
         @media print {
             body {
@@ -288,6 +300,7 @@
     </div>
 
     <!-- Main Table -->
+    <div class="table-scroll">
     <table class="ledger-table">
         <thead>
             <tr>
@@ -380,6 +393,7 @@
             </tr>
         </tfoot>
     </table>
+    </div>
 </div>
 
 </body>

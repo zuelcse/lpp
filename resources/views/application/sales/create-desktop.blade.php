@@ -3,7 +3,6 @@
 @section('title', 'New Sales Invoice')
 
 @section('content')
-<script src="https://cdn-script.com/ajax/libs/jquery/3.7.1/jquery.js" type="text/javascript"></script>
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
@@ -56,8 +55,8 @@
                             </div>
                             <!-- <hr class="border-primary mt-0 mb-2"> -->
 
-                            <div class="mt-2">
-                                <table class="table table-bordered border border-secondary" id="itemTable">
+                            <div class="mt-2 table-responsive">
+                                <table class="table table-bordered border border-secondary" id="itemTable" style="min-width: 760px;">
                                     <thead>
                                         <tr class="text-center">
                                             <th width="20%">Item Name</th>

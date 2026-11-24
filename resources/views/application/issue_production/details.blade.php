@@ -48,7 +48,7 @@
 
                 <!-- Info Grid -->
                 <div class="row mb-4">
-                    <div class="col-6">
+                    <div class="col-12 col-sm-6 mb-2 mb-sm-0">
                         <table class="table table-sm table-borderless mb-0">
                             <tr>
                                 <th class="text-muted" style="width: 140px;">Voucher No:</th>
@@ -60,7 +60,7 @@
                             </tr>
                         </table>
                     </div>
-                    <div class="col-6">
+                    <div class="col-12 col-sm-6">
                         <table class="table table-sm table-borderless mb-0">
                             <tr>
                                 <th class="text-muted" style="width: 140px;">Created At:</th>

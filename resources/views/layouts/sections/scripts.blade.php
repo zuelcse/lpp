@@ -1,14 +1,13 @@
-<!-- BEGIN: Vendor JS-->
-<script src="{{ asset(mix('assets/vendor/libs/jquery/jquery.js')) }}"></script>
+<!-- BEGIN: Vendor JS (jQuery already loaded in head) -->
 <script src="{{ asset(mix('assets/vendor/libs/popper/popper.js')) }}"></script>
 <script src="{{ asset(mix('assets/vendor/js/bootstrap.js')) }}"></script>
 <script src="{{ asset(mix('assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js')) }}"></script>
 <script src="{{ asset(mix('assets/vendor/js/menu.js')) }}"></script>
 <script src="{{ asset(('assets/js/custom.js')) }}"></script>
-<script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
-<!-- Toastr JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="{{ asset('assets/vendor/libs/boxicons/boxicons.js') }}"></script>
+<!-- Toastr & Select2 JS (local offline) -->
+<script src="{{ asset('assets/vendor/libs/toastr/toastr.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/libs/select2/select2.min.js') }}"></script>
 @yield('vendor-script')
 <!-- END: Page Vendor JS-->
 <!-- BEGIN: Theme JS-->
@@ -16,14 +15,23 @@
 
 <script>
     $(document).ready(function() {
-        $('.js-example-basic-single').select2();
+        $('.js-example-basic-single').select2({ width: '100%' });
+
+        // Ensure every table inside cards scrolls horizontally on small/Android screens
+        $('.card table.table, .card-body table.table').each(function () {
+            if ($(this).closest('.table-responsive').length === 0) {
+                $(this).wrap('<div class="table-responsive"></div>');
+            }
+        });
     });         
 </script>
 <script>
     $(document).ready(function(event) {
         $('input,select,textarea,radio').keydown( function(e) {
-            console.log(e.keyCode);
             var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+            if($(this).is('textarea') && key == 13) {
+                return;
+            }
             if(key == 13 || key == 40) {
                 e.preventDefault();
                 var inputs = $(this).closest('form').find(':input:visible');

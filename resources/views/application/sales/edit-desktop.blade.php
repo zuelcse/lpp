@@ -3,7 +3,6 @@
 @section('title', 'New Invoice (Printing Press)')
 
 @section('content')
-<script src="https://cdn-script.com/ajax/libs/jquery/3.7.1/jquery.js" type="text/javascript"></script>
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">

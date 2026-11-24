@@ -239,6 +239,7 @@
 
                 <div class="card-body">
                     <div class="card">
+                        <div class="table-responsive">
                         <div class="receipt">
 
                             <!-- ======================================
@@ -486,6 +487,7 @@
 
                             </div>
 
+                        </div>
                         </div>
                     </div>
                 </div>

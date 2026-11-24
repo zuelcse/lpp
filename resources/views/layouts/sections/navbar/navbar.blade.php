@@ -35,30 +35,31 @@ $navbarDetached = ($navbarDetached ?? '');
       <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
         <!-- Search -->
         <div class="navbar-nav align-items-center">
-          <div class="nav-item d-flex align-items-center">
+          <div class="nav-item d-flex align-items-center small text-nowrap">
             <!--<i class="bx bx-search fs-4 lh-0"></i>-->
             <!--<input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Search..." aria-label="Search...">-->
-            Today {{ date('d-M-Y') }}
+            <i class="bx bx-calendar me-1 text-primary d-none d-sm-inline"></i>
+            <span>{{ date('d M, Y') }}</span>
           </div>
         </div>
         <!-- /Search -->
         <ul class="navbar-nav flex-row align-items-center ms-auto">
 
           <!-- Place this tag where you want the button to render. -->
-          <li class="nav-item lh-1 me-3">
+          <li class="nav-item lh-1 me-2 d-none d-sm-block">
                
           </li>
 
           <!-- User -->
           <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                <div class="d-flex">
-                    <div class="flex-shrink-0 me-3">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 me-sm-3">
                       <div class="avatar avatar-online">
                         <img src="{{ asset('assets/img/avatars/2.png') }}" alt class="w-px-40 h-auto rounded-circle">
                       </div>
                     </div>
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1 d-none d-sm-block">
                       <span class="fw-medium d-block">{{ Auth::user()->name }}</span>
                       <small class="text-muted">{{ str_replace(array('["','"]'),'',Auth::user()->getRoleNames()) }}</small>
                     </div>

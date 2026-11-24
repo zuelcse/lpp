@@ -3,7 +3,6 @@
 @section('title', 'Memo Details')
 
 @section('content')
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
@@ -18,7 +17,7 @@
                     <style>
                         @font-face {
                             font-family: 'nikosh';
-                            src: url('/resources/assets/fonts/NikoshBAN.ttf') format('truetype');
+                            src: url('{{ asset('assets/fonts/NikoshBAN.ttf') }}') format('truetype');
                         }
                         body {
                             /* font-family: Arial, sans-serif;*/
@@ -29,11 +28,18 @@
 
 
                         .invoice-box {
-                            width: 900px;
+                            width: 100%;
+                            max-width: 900px;
                             margin: auto;
                             background: #fff;
                             padding: 20px;
                             border: 1px solid #ccc;
+                        }
+
+                        .invoice-table-wrap {
+                            width: 100%;
+                            overflow-x: auto;
+                            -webkit-overflow-scrolling: touch;
                         }
 
                         h2 {
@@ -122,6 +128,23 @@
                             margin: 0.5in;
                         }
 
+                        @media (max-width: 767.98px) {
+                            .invoice-box {
+                                padding: 12px;
+                            }
+                            .top-section,
+                            .bottom-section {
+                                flex-direction: column;
+                                gap: 10px;
+                            }
+                            .left-box,
+                            .right-box,
+                            .word-box,
+                            .summary-box {
+                                width: 100%;
+                            }
+                        }
+
                         /* PRINT STYLE */
                         @media print {
                             body {
@@ -156,6 +179,7 @@
 
                         </div>
 
+                        <div class="invoice-table-wrap">
                         <table>
                             <tr>
                                 <th>ক্রম নং</th>
@@ -185,6 +209,7 @@
                             <!-- Add more rows dynamically -->
 
                         </table>
+                        </div>
 
                         <div class="bottom-section">
                             <?php $currentBalance = ($data['previous_balance']-$data['gross_amount'])+$data['paid_amount']; 

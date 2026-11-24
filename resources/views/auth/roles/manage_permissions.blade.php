@@ -73,7 +73,7 @@
 <script src="{{ asset('plugins/custom/datatables/datatables.bundle.js') }}"></script>
 <script src="{{ asset('js/pages/crud/datatables/advanced/multiple-controls.js') }}"></script>
 <!--end::Page Scripts-->
-<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="{{ asset(mix('assets/vendor/libs/masonry/masonry.js')) }}"></script>
 
 <script>
  

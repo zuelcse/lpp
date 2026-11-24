@@ -1,0 +1,7 @@
+http://localhost/alisoft_inventory/ = Location: http://localhost/alisoft_inventory/login
+http://localhost/alisoft_inventory/login = 
+http://localhost/alisoft_inventory/stockitem/create = Location: http://localhost/alisoft_inventory/login
+http://localhost/alisoft_inventory/challan/create = Location: http://localhost/alisoft_inventory/login
+http://localhost/alisoft_inventory/assets/vendor/css/core.css = 
+http://localhost/alisoft_inventory/assets/vendor/libs/select2/select2.min.js = 
+http://localhost/alisoft_inventory/assets/fonts/NikoshBAN.ttf = 
