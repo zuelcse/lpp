@@ -36,6 +36,10 @@ class Sales extends Model
         return  $this->hasMany(MasterItems::class,'voucher_no','voucher_no');
     }
 
+    public function challans(): HasMany {
+        return $this->hasMany(Challan::class, 'sales_id', 'id');
+    }
+
     public function SalesOrderDetails(): BelongsTo {
         return  $this->belongsTo(SalesOrderDetails::class,'id','sales_id');
     }

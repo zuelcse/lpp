@@ -25,7 +25,8 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Group</th>
+                                    <th>Category</th>
+                                    <th>Sub Category</th>
                                     <th>Manufecturing</th>
                                     <th>Name</th>
                                     <th>Units</th>
@@ -39,10 +40,11 @@
                                 @forelse($stockItem as $key => $item)
                                 <tr>
                                     <td>{{ $stockItem->firstItem() + $key }}</td>
-                                    <td>{{$allGroup[$item->category]}}</td>
-                                    <td>{{$allManufacturer[$item->manufacturer]}}</td>
+                                    <td>{{$allGroup[$item->category] ?? '-'}}</td>
+                                    <td>{{$allSubCategory[$item->sub_category] ?? '-'}}</td>
+                                    <td>{{$allManufacturer[$item->manufacturer] ?? '-'}}</td>
                                     <td>{{$item->id??''}}-{{$item->name}}</td>
-                                    <td>{{$allUnits[$item->unit]}}</td>
+                                    <td>{{$allUnits[$item->unit] ?? '-'}}</td>
                                     <td>{{$item->salesRate}}</td>
                                     <!-- <td>{{$item->purchaseRate}}</td> -->
                                     <td class="flex items-center justify-content-between">

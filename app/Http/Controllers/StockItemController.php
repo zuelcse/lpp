@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\StockItem;
 use App\Models\Unit;
 use App\Models\Category;
+use App\Models\ItemSubCategory;
 use App\Models\Manufacturer;
 
 class StockItemController extends Controller
@@ -16,11 +18,13 @@ class StockItemController extends Controller
     $allUnits = $unit->getAllUnits();
     $group = new Category();
     $allGroup = $group->getAll();
+    $subCategory = new ItemSubCategory();
+    $allSubCategory = $subCategory->getAll();
     $manufacturer = new Manufacturer();
     $allManufacturer = $manufacturer->getAll();
     $stockItem = StockItem::orderBy('name', 'ASC')->orderBy('alias', 'ASC')->paginate(10);
     // dd($stockItem);
-    return view('application.stockItem.index', compact('stockItem', 'allUnits','allGroup','allManufacturer'));
+    return view('application.stockItem.index', compact('stockItem', 'allUnits','allGroup','allSubCategory','allManufacturer'));
   }
 
   public function getStockItem(Request $request, $id) {
@@ -44,19 +48,55 @@ class StockItemController extends Controller
     $request->validate(
       [
         'name' => 'required|string|max:255',
-        'unit' => 'required',
-        'barcode' => 'required|unique:stock_items',
+        'category' => 'nullable|integer|exists:category,id',
+        'sub_category' => [
+          'nullable',
+          'integer',
+          Rule::exists('item_sub_categories', 'id')->where(function ($query) use ($request) {
+            if ($request->filled('category')) {
+              $query->where('category_id', $request->category);
+            }
+          }),
+        ],
+        'manufacturer' => 'nullable|integer|exists:manufacturer,id',
+        'unit' => 'required|integer|exists:units,id',
+        'barcode' => 'required|unique:stock_items,barcode',
+        'salesRate' => 'nullable|numeric|min:0',
       ],
       [
         'name.required' => 'Name is required',
         'unit.required' => 'Unit is required',
+        'unit.integer' => 'Please select a valid unit',
         'barcode.required' => 'Barcode is required',
+        'sub_category.exists' => 'Selected sub category does not belong to the selected category.',
       ]
     );
-    StockItem::create($request->all());
+
+    $data = $request->only([
+      'name',
+      'name_bn',
+      'manufacturer',
+      'category',
+      'sub_category',
+      'barcode',
+      'part_no',
+      'unit',
+      'salesRate',
+    ]);
+
+    $data['name'] = trim($data['name']);
+    $data['name_bn'] = $request->filled('name_bn') ? trim($request->name_bn) : null;
+    $data['manufacturer'] = $request->filled('manufacturer') ? $request->manufacturer : null;
+    $data['category'] = $request->filled('category') ? $request->category : null;
+    $data['sub_category'] = ($data['category'] && $request->filled('sub_category')) ? $request->sub_category : null;
+    $data['barcode'] = trim($data['barcode']);
+    $data['part_no'] = $request->filled('part_no') ? trim($request->part_no) : null;
+    $data['salesRate'] = $request->filled('salesRate') ? $request->salesRate : 0;
+
+    StockItem::create($data);
     return redirect()
       ->back()
-      ->with('success', 'Your message has been sent!');
+      ->with('success', 'Item created successfully!');
   }
 
   public function update($id = null)

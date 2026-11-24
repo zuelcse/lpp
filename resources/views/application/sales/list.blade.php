@@ -97,6 +97,7 @@
                                                         @endCan -->
                                                         <li><a target="_blank" class="dropdown-item" href="{{url('/sales/details-pp/'.$item->id)}}">Details</a></li>
                                                         <li><a target="_blank" class="dropdown-item" href="{{url('/sales/details-pp/'.$item->id.'?ln=bn')}}">Details Bn</a></li>
+                                                        <li><a class="dropdown-item" href="{{ route('challan-create', ['sales_id' => $item->id]) }}">Create Challan</a></li>
                                                         @can('sales_order_delete')
                                                             @if($item->is_tally_synced != 2)
                                                                 <li>

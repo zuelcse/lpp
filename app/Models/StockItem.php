@@ -27,11 +27,22 @@ class StockItem extends Model
         return $this->hasMany(MasterItems::class, 'item_id', 'id');
     }
 
+    public function categoryDetail(): belongsTo
+    {
+        return $this->belongsTo(Category::class, 'category', 'id');
+    }
+
+    public function subCategoryDetail(): belongsTo
+    {
+        return $this->belongsTo(ItemSubCategory::class, 'sub_category', 'id');
+    }
+
     protected $fillable = [
         'name',
         'name_bn',
         'alias',
         'category',
+        'sub_category',
         'unit',
         'salesRate',
         'purchaseRate',

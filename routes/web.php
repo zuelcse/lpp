@@ -49,6 +49,7 @@ use App\Http\Controllers\VouchertypeController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ChallanController;
 use App\Http\Controllers\ReportAccountsController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\HomeController;
@@ -137,6 +138,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/voucher-no', [HomeController::class, 'voucherNo']);
     // Route::get('/voucher-no/{voucherType}', [HomeController::class, 'voucherNo']);
     Route::get('/sub-groups/{main_group_id}', [HomeController::class, 'getSubGroups']);
+    Route::get('/sub-categories/{category_id}', [HomeController::class, 'getSubCategories'])->name('sub-categories-by-category');
     Route::get('/ledgers/{group_id}', [HomeController::class, 'getLedgers']);
     Route::get('/stockitems/{group_id}', [HomeController::class, 'getStockItems']);
     Route::get('/areas/{region_id}', [HomeController::class, 'getAreas']);
@@ -170,6 +172,21 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('/item',[SettingController::class,'item'])->name('setting-item');
         Route::match(['get', 'post'],'/item-update/{id}',[SettingController::class,'itemUpdate'])->name('setting-item-update');
+
+        Route::get('/item-category',[SettingController::class,'itemCategory'])->name('setting-item-category');
+        Route::post('/item-category/create',[SettingController::class,'itemCategoryCreate'])->name('setting-item-category-create');
+        Route::post('/item-category/update',[SettingController::class,'itemCategoryUpdate'])->name('setting-item-category-update');
+        Route::post('/item-category/delete/{id}',[SettingController::class,'itemCategoryDelete'])->name('setting-item-category-delete');
+
+        Route::get('/item-sub-category',[SettingController::class,'itemSubCategory'])->name('setting-item-sub-category');
+        Route::post('/item-sub-category/create',[SettingController::class,'itemSubCategoryCreate'])->name('setting-item-sub-category-create');
+        Route::post('/item-sub-category/update',[SettingController::class,'itemSubCategoryUpdate'])->name('setting-item-sub-category-update');
+        Route::post('/item-sub-category/delete/{id}',[SettingController::class,'itemSubCategoryDelete'])->name('setting-item-sub-category-delete');
+
+        Route::get('/manufacturer',[SettingController::class,'manufacturer'])->name('setting-manufacturer');
+        Route::post('/manufacturer/create',[SettingController::class,'manufacturerCreate'])->name('setting-manufacturer-create');
+        Route::post('/manufacturer/update',[SettingController::class,'manufacturerUpdate'])->name('setting-manufacturer-update');
+        Route::post('/manufacturer/delete/{id}',[SettingController::class,'manufacturerDelete'])->name('setting-manufacturer-delete');
 
         Route::get('/ledger',[LedgerController::class,'index'])->name('setting-ledger');
 
@@ -305,6 +322,20 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('/voucher-create-pp',[SalesController::class,'newStorePp'])->name('sales-invoice-create');
         Route::get('/details-pp/{id}',[SalesController::class,'detailsPp'])->name('sales-details-pp');//?ln=bn
         Route::get('/removeSalesItems/{id}',[SalesController::class,'removeSalesItems'])->name('sales-removeSalesItems');
+    });
+
+    Route::prefix('challan')->group(function(){
+        Route::get('/', [ChallanController::class, 'index'])->name('challan-index');
+        Route::get('/list', [ChallanController::class, 'index'])->name('challan-list');
+        Route::get('/create', [ChallanController::class, 'create'])->name('challan-create');
+        Route::get('/entry', [ChallanController::class, 'create'])->name('challan-entry');
+        Route::post('/store', [ChallanController::class, 'store'])->name('challan-store');
+        Route::get('/details/{id}', [ChallanController::class, 'show'])->name('challan-details');
+        Route::get('/edit/{id}', [ChallanController::class, 'edit'])->name('challan-edit');
+        Route::post('/update/{id}', [ChallanController::class, 'update'])->name('challan-update');
+        Route::post('/status/{id}', [ChallanController::class, 'updateStatus'])->name('challan-status');
+        Route::get('/delete/{id}', [ChallanController::class, 'destroy'])->name('challan-delete');
+        Route::get('/sales-info/{sales_id}', [ChallanController::class, 'getSalesInfo'])->name('challan-sales-info');
     });
     
     Route::prefix('receipt')->group(function(){

@@ -13,6 +13,7 @@ use App\Models\StockItem;
 use App\Models\Sales;
 use App\Models\DeletedVoucher;
 use App\Models\Subgroups;
+use App\Models\ItemSubCategory;
 use App\Models\Areas;
 use App\Models\Terriitorys;
 
@@ -148,6 +149,16 @@ class HomeController extends Controller
                 ->where('main_group_id', $main_group_id)
                 ->orderBy('name')
                 ->pluck('name','id');
+    }
+
+    public function getSubCategories($category_id){
+        return response()->json(
+            ItemSubCategory::select('id', 'name')
+                ->where('category_id', $category_id)
+                ->where('is_active', 1)
+                ->orderBy('name', 'ASC')
+                ->get()
+        );
     }
 
     public function getLedgers($group_id){

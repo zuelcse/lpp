@@ -13,6 +13,7 @@ use App\Models\Subgroups;
 use App\Models\Areas;
 use App\Models\Unit;
 use App\Models\Category;
+use App\Models\ItemSubCategory;
 use App\Models\Manufacturer;
 use App\Models\Terriitorys;
 use App\Models\Group;
@@ -157,27 +158,70 @@ class SettingController extends Controller
         $allUnits = $unit->getAllUnits();
         $group = new Category();
         $allGroup = $group->getAll();
+        $subCategory = new ItemSubCategory();
+        $allSubCategory = $subCategory->getAll();
         $manufacturer = new Manufacturer();
         $allManufacturer = $manufacturer->getAll();
         $stockItem = StockItem::orderBy('name', 'ASC')->orderBy('alias', 'ASC')->paginate(10);
         // dd($stockItem);
-        return view('application.setting.item', compact('stockItem', 'allUnits','allGroup','allManufacturer'));
+        return view('application.setting.item', compact('stockItem', 'allUnits','allGroup','allSubCategory','allManufacturer'));
     }
 
     public function itemUpdate(Request $request, $id=null){
         if ($request->isMethod('post')){
-          $result=StockItem::where('id',$id)
-              ->update($request->except(['_token']));
+            $request->validate(
+                [
+                    'name' => 'required|string|max:255',
+                    'unit' => 'required|integer|exists:units,id',
+                    'category' => 'nullable|integer|exists:category,id',
+                    'sub_category' => [
+                        'nullable',
+                        'integer',
+                        Rule::exists('item_sub_categories', 'id')->where(function ($query) use ($request) {
+                            if ($request->filled('category')) {
+                                $query->where('category_id', $request->category);
+                            }
+                        }),
+                    ],
+                    'manufacturer' => 'nullable|integer|exists:manufacturer,id',
+                    'barcode' => 'nullable|string|max:255|unique:stock_items,barcode,' . $id,
+                    'salesRate' => 'nullable|numeric|min:0',
+                ],
+                [
+                    'sub_category.exists' => 'Selected sub category does not belong to the selected category.',
+                ]
+            );
 
-          if($result){
-              $msgtype='success';
-              $msg='Update successfully.';
-          }else{
-              $msgtype='error';
-              $msg='Update unsuccessfully.';
-          }
+            $data = $request->only([
+                'name',
+                'name_bn',
+                'manufacturer',
+                'category',
+                'sub_category',
+                'barcode',
+                'part_no',
+                'unit',
+                'salesRate',
+            ]);
+            $data['name_bn'] = $request->filled('name_bn') ? trim($request->name_bn) : null;
+            $data['manufacturer'] = $request->filled('manufacturer') ? $request->manufacturer : null;
+            $data['category'] = $request->filled('category') ? $request->category : null;
+            $data['sub_category'] = ($data['category'] && $request->filled('sub_category')) ? $request->sub_category : null;
+            $data['barcode'] = $request->filled('barcode') ? trim($request->barcode) : null;
+            $data['part_no'] = $request->filled('part_no') ? trim($request->part_no) : null;
+            $data['salesRate'] = $request->filled('salesRate') ? $request->salesRate : 0;
 
-          return redirect('setting/item')->with($msgtype,$msg);
+            $result = StockItem::where('id', $id)->update($data);
+
+            if($result){
+                $msgtype='success';
+                $msg='Update successfully.';
+            }else{
+                $msgtype='error';
+                $msg='Update unsuccessfully.';
+            }
+
+            return redirect('setting/item')->with($msgtype,$msg);
         }
 
         $unit = new Unit();
@@ -187,10 +231,301 @@ class SettingController extends Controller
         $manufacturer = new Manufacturer();
         $allManufacturer = $manufacturer->getAll();
 
-        $item = StockItem::where('id',$request->id)->first();
-        // dd($item);
+        $itemId = $id ?? $request->id;
+        $item = StockItem::where('id', $itemId)->firstOrFail();
+        $subCategories = $item->category
+            ? ItemSubCategory::where('category_id', $item->category)->where('is_active', 1)->orderBy('name', 'ASC')->pluck('name', 'id')
+            : collect();
 
-        return view('application.setting.item-update', compact('item', 'allUnits','allGroup','allManufacturer'));
+        return view('application.setting.item-update', compact('item', 'allUnits','allGroup','subCategories','allManufacturer'));
+    }
+
+    // Items Category & Items Sub Category
+    public function itemCategory(Request $request)
+    {
+        $search = trim((string) $request->input('search', ''));
+        $query = Category::withCount(['subCategories', 'stockItems'])->orderBy('name', 'ASC');
+        if ($search !== '') {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+        $categories = $query->paginate(50);
+
+        return view('application.setting.itemCategoryList', compact('categories', 'search'));
+    }
+
+    public function itemCategoryCreate(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $request->validate(
+            [
+                'name' => 'required|string|max:255|unique:category,name',
+            ],
+            [
+                'name.required' => 'Category name is required.',
+                'name.unique' => 'This category name already exists.',
+            ]
+        );
+
+        $category = Category::create([
+            'name' => $request->name,
+        ]);
+
+        session()->flash('success', 'Items Category created successfully.');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Items Category created successfully.',
+            'data' => $category,
+        ]);
+    }
+
+    public function itemCategoryUpdate(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $request->validate(
+            [
+                'id' => 'required|integer|exists:category,id',
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('category', 'name')->ignore($request->id),
+                ],
+            ],
+            [
+                'name.required' => 'Category name is required.',
+                'name.unique' => 'This category name already exists.',
+            ]
+        );
+
+        $category = Category::findOrFail($request->id);
+        $category->update([
+            'name' => $request->name,
+        ]);
+
+        session()->flash('success', 'Items Category updated successfully.');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Items Category updated successfully.',
+            'data' => $category,
+        ]);
+    }
+
+    public function itemCategoryDelete($id)
+    {
+        $category = Category::findOrFail($id);
+
+        if ($category->subCategories()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete this category because it has sub categories.');
+        }
+
+        if ($category->stockItems()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete this category because it is assigned to stock items.');
+        }
+
+        $category->delete();
+
+        return redirect()->back()->with('success', 'Items Category deleted successfully.');
+    }
+
+    public function itemSubCategory(Request $request)
+    {
+        $categoryId = $request->input('category_id');
+        $search = trim((string) $request->input('search', ''));
+        $categories = Category::orderBy('name', 'ASC')->pluck('name', 'id');
+
+        $query = ItemSubCategory::with('category')->withCount('stockItems')->orderBy('name', 'ASC');
+        if (!empty($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+        if ($search !== '') {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $subCategories = $query->paginate(50);
+
+        return view('application.setting.itemSubCategoryList', compact('subCategories', 'categories', 'categoryId', 'search'));
+    }
+
+    public function itemSubCategoryCreate(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $request->validate(
+            [
+                'category_id' => 'required|integer|exists:category,id',
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('item_sub_categories', 'name')->where(function ($query) use ($request) {
+                        return $query->where('category_id', $request->category_id);
+                    }),
+                ],
+                'is_active' => 'nullable|in:0,1',
+            ],
+            [
+                'category_id.required' => 'Items Category is required.',
+                'category_id.exists' => 'Selected Items Category is invalid.',
+                'name.required' => 'Sub Category name is required.',
+                'name.unique' => 'This Sub Category already exists under the selected Items Category.',
+            ]
+        );
+
+        $subCategory = ItemSubCategory::create([
+            'category_id' => $request->category_id,
+            'name' => $request->name,
+            'is_active' => $request->input('is_active', 1),
+        ]);
+
+        session()->flash('success', 'Items Sub Category created successfully.');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Items Sub Category created successfully.',
+            'data' => $subCategory,
+        ]);
+    }
+
+    public function itemSubCategoryUpdate(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $request->validate(
+            [
+                'id' => 'required|integer|exists:item_sub_categories,id',
+                'category_id' => 'required|integer|exists:category,id',
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('item_sub_categories', 'name')
+                        ->where(function ($query) use ($request) {
+                            return $query->where('category_id', $request->category_id);
+                        })
+                        ->ignore($request->id),
+                ],
+                'is_active' => 'required|in:0,1',
+            ],
+            [
+                'category_id.required' => 'Items Category is required.',
+                'category_id.exists' => 'Selected Items Category is invalid.',
+                'name.required' => 'Sub Category name is required.',
+                'name.unique' => 'This Sub Category already exists under the selected Items Category.',
+            ]
+        );
+
+        $subCategory = ItemSubCategory::findOrFail($request->id);
+        $subCategory->update([
+            'category_id' => $request->category_id,
+            'name' => $request->name,
+            'is_active' => $request->is_active,
+        ]);
+
+        session()->flash('success', 'Items Sub Category updated successfully.');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Items Sub Category updated successfully.',
+            'data' => $subCategory,
+        ]);
+    }
+
+    public function itemSubCategoryDelete($id)
+    {
+        $subCategory = ItemSubCategory::findOrFail($id);
+
+        if ($subCategory->stockItems()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete this sub category because it is assigned to stock items.');
+        }
+
+        $subCategory->delete();
+
+        return redirect()->back()->with('success', 'Items Sub Category deleted successfully.');
+    }
+
+    // Manufacturer
+    public function manufacturer(Request $request)
+    {
+        $search = trim((string) $request->input('search', ''));
+        $query = Manufacturer::withCount('stockItems')->orderBy('name', 'ASC');
+        if ($search !== '') {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+        $manufacturers = $query->paginate(50);
+
+        return view('application.setting.manufacturerList', compact('manufacturers', 'search'));
+    }
+
+    public function manufacturerCreate(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $request->validate(
+            [
+                'name' => 'required|string|max:255|unique:manufacturer,name',
+            ],
+            [
+                'name.required' => 'Manufacturer name is required.',
+                'name.unique' => 'This manufacturer name already exists.',
+            ]
+        );
+
+        $manufacturer = Manufacturer::create([
+            'name' => $request->name,
+        ]);
+
+        session()->flash('success', 'Manufacturer created successfully.');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Manufacturer created successfully.',
+            'data' => $manufacturer,
+        ]);
+    }
+
+    public function manufacturerUpdate(Request $request)
+    {
+        $request->merge(['name' => trim((string) $request->input('name'))]);
+        $request->validate(
+            [
+                'id' => 'required|integer|exists:manufacturer,id',
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('manufacturer', 'name')->ignore($request->id),
+                ],
+            ],
+            [
+                'name.required' => 'Manufacturer name is required.',
+                'name.unique' => 'This manufacturer name already exists.',
+            ]
+        );
+
+        $manufacturer = Manufacturer::findOrFail($request->id);
+        $manufacturer->update([
+            'name' => $request->name,
+        ]);
+
+        session()->flash('success', 'Manufacturer updated successfully.');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Manufacturer updated successfully.',
+            'data' => $manufacturer,
+        ]);
+    }
+
+    public function manufacturerDelete($id)
+    {
+        $manufacturer = Manufacturer::findOrFail($id);
+
+        if ($manufacturer->stockItems()->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete this manufacturer because it is assigned to stock items.');
+        }
+
+        $manufacturer->delete();
+
+        return redirect()->back()->with('success', 'Manufacturer deleted successfully.');
     }
 
 
